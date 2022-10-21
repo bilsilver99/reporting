@@ -12,7 +12,7 @@ function Card() {
         <h2>Our System</h2>
       </div>
       <p className="ParagraphSpace">
-        Our reservation management system is designed to supply easy-to-manage
+        Our reservation system is designed to supply easy-to-manage
         low cost subscription and booking management for your business. Whether
         you run a barbershop, a hair salon or a dentist office, we have a
         solution to fit your needs.
