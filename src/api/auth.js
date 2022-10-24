@@ -1,25 +1,36 @@
 import defaultUser from "../utils/default-user";
+//import currentUser from "../utils/current-user";
 import { login } from "./MyOwnServices";
+//import { useAuth } from './contexts/auth'; 
 
+const currentUser = {
+  email: 'bill@bill.com',
+  avatarUrl: 'https://js.devexpress.com/Demos/WidgetsGallery/JSDemos/images/employees/06.png'
+}
 export async function signIn(email, password) {
+  //const [setcurrentUser,currentUser] = useState('');
+
+ 
   try {
     // Send request
     console.log(email, password);
-    login(email, password).then((response) => {
-      //navigate("/Sidebar");
-      return {
-        isOk: true,
-        data: defaultUser,
-      };
-    });
-  } catch {
+    login(email,password).then((response)=>{
+      currentUser.email = response.clientname
+    })
+    return {
+      isOk: true,
+      data: currentUser
+    }
+
+}
+
+  catch {
     return {
       isOk: false,
       message: "Authentication failed",
     };
-  }
-}
-
+  }}
+    
 export async function signInOriginal(email, password) {
   try {
     // Send request
@@ -39,11 +50,9 @@ export async function signInOriginal(email, password) {
 
 export async function getUser() {
   try {
-    // Send request
-
     return {
       isOk: true,
-      data: defaultUser,
+      //data: defaultUser,
     };
   } catch {
     return {

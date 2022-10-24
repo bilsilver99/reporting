@@ -33,13 +33,13 @@ export const login = (username, password) => {
   return fetch(url, requestoptions)
     .then((response) => {
       if (!response.ok) {
+        
         return {
           clientname: "System did not respond",
-          loginmessage: " ",
           clientcode: "",
           authorized: "N",
           administrator: "",
-          unavailable: "Y",
+
         };
       }
       return response.json();
@@ -47,13 +47,13 @@ export const login = (username, password) => {
     .then((json) => {
       console.log(json);
       if (json.user_response.ReturnClientName !== "invalid user") {
+       
         return {
           clientname: json.user_response.ReturnClientName,
-          loginmessage: " ",
           clientcode: json.user_response.ReturnClientCode,
           authorized: "Y",
           administrator: json.user_response.Returnadministrator,
-          unavailable: "N",
+
         };
       } else {
         //throw new Error("invalid username/password");

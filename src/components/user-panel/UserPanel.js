@@ -15,7 +15,7 @@ export default function UserPanel({ menuMode }) {
   }
   const menuItems = useMemo(() => ([
     {
-      text: 'Profile',
+      text: 'Company Information',
       icon: 'user',
       onClick: navigateToProfile
     },

@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import './profile.scss';
+import './employee.scss';
 import Form from 'devextreme-react/form';
 
-export default function Profile() {
+export default function Employee() {
   const [notes, setNotes] = useState(
-    'Notes about the company might go here'
+    'Notes about the empoyee might go here'
   );
   const employee = {
-    YourCompanyId: 7,
-    CompanyName: 'Our First Client',
+    YourEmployeeId: 7,
+    EmployeeName: 'Our First Client',
     AddressLineOne: '123 AnyStreet',
     AddressLineTwo: 'Suite 402',
     AddressLineThree: 'PO Bpx 231',
@@ -22,7 +22,7 @@ export default function Profile() {
 
   return (
     <React.Fragment>
-      <h2 className={'content-block'}>Company Information</h2>
+      <h2 className={'content-block'}>Employee Information</h2>
 
       <div className={'content-block dx-card responsive-paddings'}>
 
