@@ -5,25 +5,23 @@ import { login } from "./MyOwnServices";
 
 const currentUser = {
   email: 'bill@bill.com',
-  avatarUrl: 'https://js.devexpress.com/Demos/WidgetsGallery/JSDemos/images/employees/06.png'
+  avatarUrl: 'https://js.devexpress.com/Demos/WidgetsGallery/JSDemos/images/employees/06.png',
+  companynumber: 1
 }
 export async function signIn(email, password) {
   //const [setcurrentUser,currentUser] = useState('');
-
- 
   try {
     // Send request
     console.log(email, password);
     login(email,password).then((response)=>{
       currentUser.email = response.clientname
+      currentUser.companynumber=response.companynumber
     })
     return {
       isOk: true,
       data: currentUser
     }
-
 }
-
   catch {
     return {
       isOk: false,

@@ -33,13 +33,11 @@ export const login = (username, password) => {
   return fetch(url, requestoptions)
     .then((response) => {
       if (!response.ok) {
-        
         return {
           clientname: "System did not respond",
           clientcode: "",
           authorized: "N",
           administrator: "",
-
         };
       }
       return response.json();
@@ -47,13 +45,11 @@ export const login = (username, password) => {
     .then((json) => {
       console.log(json);
       if (json.user_response.ReturnClientName !== "invalid user") {
-       
         return {
           clientname: json.user_response.ReturnClientName,
           clientcode: json.user_response.ReturnClientCode,
           authorized: "Y",
           administrator: json.user_response.Returnadministrator,
-
         };
       } else {
         //throw new Error("invalid username/password");
@@ -82,7 +78,7 @@ export const login = (username, password) => {
     });
 };
 
-export const fetchcompany = (companynumber) => {
+export const fetchcompany = async (companynumber) => {
   var requestoptions = {
     method: "POST",
     headers: {
@@ -94,7 +90,7 @@ export const fetchcompany = (companynumber) => {
     }),
   };
   const url = `${process.env.REACT_APP_BASE_URL}/GetParameters`;
-  return fetch(url, requestoptions) // Request fish
+  return await fetch(url, requestoptions) // Request fish
     .then((response) => {
       if (!response.ok) {
         return {
@@ -108,9 +104,11 @@ export const fetchcompany = (companynumber) => {
       console.log(json);
       //throw new Error("invalid username/password");
       return {
-        companyname: json.user_response.ReturnCompanyName,
-        returnaddressone: json.user_response.ReturnAddressLineOne,
-        returnaddresstwo: json.user_response.ReturnAddressLineTwo,
+        CompanyName: json.user_response.ReturnCompanyName,
+        AddressLineOne: json.user_response.ReturnAddressLineOne,
+        AddressLineTwo: json.user_response.ReturnAddressLineTwo,
+        AddressLineThree: json.user_response.ReturnAddressLineThree,
+        AddressLineFour: json.user_response.ReturnAddressLineFour,
       };
     });
 };

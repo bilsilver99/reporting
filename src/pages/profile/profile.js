@@ -1,24 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect,Component} from 'react';
 import './profile.scss';
 import Form from 'devextreme-react/form';
+import { fetchcompany } from '../../api/MyOwnServices';
+//import { fetchcompany } from '../../api/MyOwnServices';
+//import { useAuth } from '../../contexts/auth';
 
 export default function Profile() {
-  const [notes, setNotes] = useState(
-    'Notes about the company might go here'
-  );
-  const employee = {
-    YourCompanyId: 7,
-    CompanyName: 'Our First Client',
-    AddressLineOne: '123 AnyStreet',
-    AddressLineTwo: 'Suite 402',
-    AddressLineThree: 'PO Bpx 231',
-    AddressLineFour: '...',
-    Country: 'Canada',
-    PhoneNumber: '416-111-2222',
-    Notes: notes,
-    EmailAddress: 'bill@bill.com',
-   
-  };
+
+  const [mounted,setmounted]=useState(true)
+
+  const [notes, setNotes ] = useState('Company Notes');
+
+  const companynumber=1;
+
+  const [companyValues, setvalues]=useState(null)
+
+
+  
+
+//setcompany(1);
+
+   useEffect(() => {
+      fetchcompany(companynumber).then(result =>{
+            console.log(result);
+            setvalues({
+              YourCompanyId: 0,
+              CompanyName: result.CompanyName,
+              AddressLineOne: result.AddressLineOne,
+              AddressLineTwo: result.AddressLineTwo,
+              AddressLineThree: result.AddressLineThree,
+              AddressLineFour: '',
+              Country: '',
+              PhoneNumber: '',
+              Notes: '',
+              EmailAddress: '',
+            })
+        })
+
+  },[companynumber])
+
+
+
 
   return (
     <React.Fragment>
@@ -30,14 +52,16 @@ export default function Profile() {
       </div>
 
       <div className={'content-block dx-card responsive-paddings'}>
+        {companyValues !== null && (
         <Form
           id={'form'}
-          defaultFormData={employee}
+          defaultFormData={companyValues}
           onFieldDataChanged={e => e.dataField === 'Notes' && setNotes(e.value)}
           labelLocation={'top'}
           colCountByScreen={colCountByScreen}
-        />
+        />)}
       </div>
+
     </React.Fragment>
   );
 }
