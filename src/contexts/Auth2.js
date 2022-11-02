@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { getUser, signIn as sendSignInRequest } from "../api/auth";
 
-function AuthProvider(props) {
+function AuthProvider2(props) {
   const [user, setUser] = useState();
   const [loading, setLoading] = useState(true);
 
@@ -45,4 +45,4 @@ function AuthProvider(props) {
 const AuthContext = createContext({ loading: false });
 const useAuth = () => useContext(AuthContext);
 
-export { AuthProvider, useAuth };
+export { AuthProvider2, useAuth };

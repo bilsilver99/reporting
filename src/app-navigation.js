@@ -1,24 +1,29 @@
 export const navigation = [
   {
-    text: 'Home',
-    path: '/home',
-    icon: 'home'
+    text: "Home",
+    path: "/home",
+    icon: "home",
   },
   {
-    text: 'Options',
-    icon: 'folder',
+    text: "Options",
+    icon: "folder",
     items: [
       {
-        text: 'Company Information',
-        path: '/profile'
+        text: "Company Information",
+        path: "/profile",
       },
       {
-        text: 'Employee Setup',
-        path: '/employee'},
+        text: "Employee Setup",
+        path: "/employee",
+      },
       {
-        text: 'Tasks',
-        path: '/tasks'
-      }
-    ]
-  }
-  ];
+        text: "Tasks",
+        path: "/tasks",
+      },
+      {
+        text: "New Employee",
+        path: "/newEmployee",
+      },
+    ],
+  },
+];

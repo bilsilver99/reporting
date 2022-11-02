@@ -1,38 +1,34 @@
 import defaultUser from "../utils/default-user";
-//import currentUser from "../utils/current-user";
 import { login } from "./MyOwnServices";
-//import { useAuth } from './contexts/auth'; 
 
-const currentUser = {
-  email: 'bill@bill.com',
-  avatarUrl: 'https://js.devexpress.com/Demos/WidgetsGallery/JSDemos/images/employees/06.png',
-  companynumber: 1
-}
+const currentUser = {};
 export async function signIn(email, password) {
-  //const [setcurrentUser,currentUser] = useState('');
   try {
     // Send request
-    console.log(email, password);
-    login(email,password).then((response)=>{
-      currentUser.email = response.clientname
-      currentUser.companynumber=response.companynumber
-    })
+    //console.log(email, password);
+    await login(email, password).then((response) => {
+      currentUser.email = response.clientname;
+      currentUser.companynumber = response.clientcompany;
+      currentUser.avatarUrl =
+        "https://js.devexpress.com/Demos/WidgetsGallery/JSDemos/images/employees/07.png";
+      //console.log(currentUser);
+    });
     return {
       isOk: true,
-      data: currentUser
-    }
-}
-  catch {
+      data: currentUser, //{response},
+    };
+  } catch {
     return {
       isOk: false,
       message: "Authentication failed",
     };
-  }}
-    
+  }
+}
+
 export async function signInOriginal(email, password) {
   try {
     // Send request
-    console.log(email, password);
+    //console.log(email, password);
 
     return {
       isOk: true,
@@ -62,7 +58,7 @@ export async function getUser() {
 export async function createAccount(email, password) {
   try {
     // Send request
-    console.log(email, password);
+    //console.log(email, password);
 
     return {
       isOk: true,
@@ -78,7 +74,7 @@ export async function createAccount(email, password) {
 export async function changePassword(email, recoveryCode) {
   try {
     // Send request
-    console.log(email, recoveryCode);
+    //console.log(email, recoveryCode);
 
     return {
       isOk: true,
@@ -94,7 +90,7 @@ export async function changePassword(email, recoveryCode) {
 export async function resetPassword(email) {
   try {
     // Send request
-    console.log(email);
+    //console.log(email);
 
     return {
       isOk: true,
@@ -106,3 +102,25 @@ export async function resetPassword(email) {
     };
   }
 }
+
+// export async function signIn(email, password) {
+//   try {
+//     // Send request
+//     console.log(email, password);
+//     login(email, password).then((response) => {
+//       currentUser.email = response.clientname;
+//       currentUser.companynumber = response.companynumber;
+//       currentUser.avatarUrlavatarUrl =
+//         "https://js.devexpress.com/Demos/WidgetsGallery/JSDemos/images/employees/06.png";
+//     });
+//     return {
+//       isOk: true,
+//       data: currentUser,
+//     };
+//   } catch {
+//     return {
+//       isOk: false,
+//       message: "Authentication failed",
+//     };
+//   }
+// }
