@@ -29,7 +29,8 @@ export default function LoginForm() {
       const result = await signIn(email, password);
       if (!result.isOk) {
         setLoading(false);
-        notify(result.message, "error", 2000);
+        notify("Authentication failed", "error", 2000);
+        //console.log(result.message);
       }
     },
     [signIn]

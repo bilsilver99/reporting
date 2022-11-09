@@ -1,19 +1,4 @@
-/*
- * @param {*} username
- * @param {*} password
- *
- * shape of returned object:
- * {
- *   widget: STRING,
- *   clientname: STRING,
- *   loginmessage: STRING,
- *   clientcode: STRING
- * }
- *
- * OR throw an error with a login message
- */
-
-//import react from "react";
+import { useAuth } from "../contexts/auth";
 
 export const login = async (username, password) => {
   var requestoptions = {
@@ -43,18 +28,20 @@ export const login = async (username, password) => {
       return response.json();
     })
     .then((json) => {
-      //console.log(json);
-      if (json.user_response.ReturnClientName !== "invalid user") {
+      console.log(json);
+      if (json.user_response.returnOK !== false) {
         return {
           clientname: json.user_response.ReturnClientName,
           clientcode: json.user_response.ReturnClientCode,
           authorized: "Y",
           administrator: json.user_response.Returnadministrator,
           clientcompany: json.user_response.Returnedcompanynumber,
+          returnOK: json.user_response.returnOK,
         };
       } else {
         //throw new Error("invalid username/password");
         return {
+          returnOK: json.user_response.ReturnOK,
           clientname: "",
           error: "Invalid username/password",
           loginmessage: " ",
@@ -159,5 +146,41 @@ export const updateCompany = async (companynumber, companyValues) => {
     })
     .then((json) => {
       return {};
+    });
+};
+
+export default function Pullstore() {
+  const { user } = useAuth();
+  return <pullstore companynumber={user.companynumber} />;
+}
+export const pullstore = async (params) => {
+  var requestoptions = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json;",
+    },
+    body: JSON.stringify({
+      SentCompany: this.companynumber,
+      Parameters: params,
+    }),
+  };
+  const url = `${process.env.REACT_APP_BASE_URL}/updateCompany`;
+  return await fetch(url, requestoptions) // Request fish
+    .then((response) => {
+      if (!response.ok) {
+        return {
+          companyname: "System did not respond",
+          returnaddress: " ",
+        };
+      }
+      return response.json();
+    })
+    .then((json) => {
+      return {
+        data: json.user_response.mdata,
+        totalCount: json.user_response.totalCount,
+        key: json.user_response.keyname,
+      };
     });
 };

@@ -2,21 +2,28 @@ import defaultUser from "../utils/default-user";
 import { login } from "./MyOwnServices";
 
 const currentUser = {};
+var thisOK = "0";
 export async function signIn(email, password) {
   try {
     // Send request
     //console.log(email, password);
     await login(email, password).then((response) => {
+      thisOK = response.returnOK;
+      console.log(thisOK);
       currentUser.email = response.clientname;
       currentUser.companynumber = response.clientcompany;
       currentUser.avatarUrl =
         "https://js.devexpress.com/Demos/WidgetsGallery/JSDemos/images/employees/07.png";
       //console.log(currentUser);
     });
-    return {
-      isOk: true,
-      data: currentUser, //{response},
-    };
+    if (thisOK === "1") {
+      return {
+        isOk: true,
+        data: currentUser,
+      };
+    } else {
+      return { isOk: false };
+    }
   } catch {
     return {
       isOk: false,
