@@ -4,26 +4,25 @@ export const navigation = [
     path: "/home",
     icon: "home",
   },
+
   {
-    text: "Options",
-    icon: "folder",
-    items: [
-      {
-        text: "Company Information",
-        path: "/profile",
-      },
-      {
-        text: "Employee Setup",
-        path: "/employee",
-      },
-      {
-        text: "Employee Management",
-        path: "/employeeManagement",
-      },
-      {
-        text: "New Employee",
-        path: "/newEmployee",
-      },
-    ],
+    text: " Company Information",
+    path: "/companyProfile",
+  },
+  {
+    text: " Employee Setup",
+    path: "/employee",
+  },
+  {
+    text: " Employee Management",
+    path: "/employeeManagement",
+  },
+  {
+    text: "Holiday Management",
+    path: "/holiday",
+  },
+  {
+    text: " New Employee",
+    path: "/newEmployee",
   },
 ];
