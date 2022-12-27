@@ -13,7 +13,6 @@ import CustomStore from "devextreme/data/custom_store";
 import "devextreme/data/data_source";
 import "whatwg-fetch";
 import { useAuth } from "../../contexts/auth";
-import TextBox from "devextreme-react/text-box";
 //import { ItemDragging } from "devextreme-react/list";
 
 function isNotEmpty(value) {
@@ -204,16 +203,25 @@ class EmployeeManagementx extends React.Component {
           >
             <Popup title="Employee Info" showTitle={true} />
             <Form>
-              <Item itemType="group" caption="Personal Information">
+              labelLocation="left"
+              <Item
+                itemType="group"
+                caption="Personal Information"
+                colCount={2}
+                colSpan={2}
+              >
                 <Item dataField="OPERATORNAME" />
+
                 <Item dataField="USERNAME" />
                 <Item dataField="USERPASSWORD" />
                 <Item dataField="EMAILADDRESS" />
-                <Item dataField="ACTIVE" />
-                <Item dataField="ADMINISTRATOR" />
-                <Item dataField="EMPLOYEENOTES" />
               </Item>
-              <Item itemType="group" caption="Days Available">
+              <Item
+                itemType="group"
+                caption="Available Days"
+                colCount={7}
+                colSpan={1}
+              >
                 <Item dataField={"MONDAY"} />
                 <Item dataField={"TUESDAY"} />
                 <Item dataField={"WEDNESDAY"} />
@@ -256,7 +264,7 @@ class EmployeeManagementx extends React.Component {
             caption={"Administrator"}
             hidingPriority={7}
             dataType="boolean"
-            allowEditing={true}
+            allowEditing={false}
           />
           <Column
             dataField={"OPERATORNAME"}
@@ -283,55 +291,55 @@ class EmployeeManagementx extends React.Component {
             dataType="boolean"
             caption={"Tuesday"}
             hidingPriority={7}
-            allowEditing={true}
+            allowEditing={false}
           />
           <Column
             dataField={"WEDNESDAY"}
             dataType="boolean"
             caption={"Wednesday"}
             hidingPriority={7}
-            allowEditing={true}
+            allowEditing={false}
           />
           <Column
             dataField={"THURSDAY"}
             dataType="boolean"
             caption={"Thursday"}
             hidingPriority={7}
-            allowEditing={true}
+            allowEditing={false}
           />
           <Column
             dataField={"FRIDAY"}
             dataType="boolean"
             caption={"Friday"}
             hidingPriority={7}
-            allowEditing={true}
+            allowEditing={false}
           />
           <Column
             dataField={"SATURDAY"}
             dataType="boolean"
             caption={"Saturday"}
             hidingPriority={7}
-            allowEditing={true}
+            allowEditing={false}
           />
           <Column
             dataField={"SUNDAY"}
             dataType="boolean"
             caption={"Sunday"}
             hidingPriority={7}
-            allowEditing={true}
+            allowEditing={false}
           />
           <Column
             dataField={"ACTIVE"}
             dataType="boolean"
             caption={"Active"}
             hidingPriority={7}
-            allowEditing={true}
+            allowEditing={false}
           />
           <Column
             dataField={"EMPLOYEENOTES"}
             caption={"Notes"}
             hidingPriority={7}
-            allowEditing={true}
+            allowEditing={false}
           />
 
           <Paging defaultPageSize={12} />

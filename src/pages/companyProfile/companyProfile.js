@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
-import "./profile.scss";
+import "./companyProfile.scss";
 import "devextreme-react/text-area";
 import Form, { Item, ButtonItem, GroupItem } from "devextreme-react/form";
 import { fetchcompany, updateCompany } from "../../api/MyOwnServices";
 import { useAuth } from "../../contexts/auth";
 import notify from "devextreme/ui/notify";
 
-function Profilex(props) {
+function CompanyProfilex(props) {
+  const [notes, setNotes] = useState("");
+
   const [companyValues, setCompanyValues] = useState({
     CompanyNumber: 0,
     CompanyName: "",
@@ -92,10 +94,11 @@ function Profilex(props) {
 
   return (
     <React.Fragment>
-      <div className="long-title">
-        <h3>Company Details</h3>
-      </div>
-      <div className="form-container">
+      <h2 className={"content-block"}>Client Information</h2>
+      <div
+        className="content-block dx-card responsive-paddings'}>
+"
+      >
         <form onSubmit={companyUpdate}>
           <Form
             onContentReady={validateForm}
@@ -116,7 +119,7 @@ function Profilex(props) {
               />
               <Item
                 dataField="AddressLineOne"
-                editorOptions={nameEditorOptions}
+                //editorOptions={nameEditorOptions}
               />
               <Item
                 dataField="AddressLineTwo"
@@ -174,9 +177,9 @@ const colCountByScreen = {
   lg: 4,
 };
 
-export default function Profile() {
+export default function CompanyProfile() {
   const { user } = useAuth();
-  return <Profilex companynumber={user.companynumber} />;
+  return <CompanyProfilex companynumber={user.companynumber} />;
 }
 
 // {/* <React.Fragment>
