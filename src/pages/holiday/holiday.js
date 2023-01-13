@@ -1,101 +1,293 @@
 import React from "react";
-import "./home.css";
-import system from "../images/system.jpg";
-import scheduling from "../images/scheduling.jpg";
-import globe from "../images/globe.png";
-//import logo from "../images/iron.webp";
+import DataGrid, {
+  Column,
+  Paging,
+  Pager,
+  Editing,
+  Form,
+  Item,
+  Popup,
+  Label,
+} from "devextreme-react/data-grid";
 
-function Card() {
-  return (
-    <div className="card">
-      <div className="card-top">
-        <h2>Our System</h2>
-      </div>
-      <p className="ParagraphSpace">
-        Our reservation system is designed to supply easy-to-manage low cost
-        subscription and booking management for your business. Whether you run a
-        barbershop, a hair salon or a dentist office, we have a solution to fit
-        your needs.
-      </p>
-      <img
-        className="systempic"
-        src={system}
-        alt="Iron Reservations "
-        height="200"
-        width="200"
-      />
-    </div>
-  );
+import "devextreme-react/text-area";
+import CustomStore from "devextreme/data/custom_store";
+import "devextreme/data/data_source";
+import "whatwg-fetch";
+import { useAuth } from "../../contexts/auth";
+//import TextBox from "devextreme-react/text-box";
+//import { ItemDragging } from "devextreme-react/list";
+import LabelTemplate from "./LabelTemplate.js";
+function isNotEmpty(value) {
+  return value !== undefined && value !== null && value !== "";
 }
-function Card2() {
-  return (
-    <div className="card">
-      <div className="card-top">
-        <h2>Scheduling </h2>
-      </div>
-      <p className="ParagraphSpace">
-        We know scheduling and time management can be an arduous process, and
-        our system is designed to make the process as simple as possible.
-        Templates are pre-installed with defaults which can be tailored to your
-        individual requirements. You can set up a general schedule and then
-        over-ride the schedule for specific requirements, or leave it as is and
-        just press the "Launch" button.
-      </p>
-      <img
-        className="systempic"
-        src={scheduling}
-        alt="Iron Reservations "
-        height="200"
-        width="200"
-      />
-    </div>
-  );
+
+function handleErrors(response) {
+  if (!response.ok) {
+    throw Error(response.statusText);
+  }
+  return response;
 }
-function Card3() {
-  return (
-    <div className="card">
-      <div className="card-top">
-        <h2>Scaleability </h2>
-      </div>
-      <p className="ParagraphSpace">
-        Whether you have a small shop with one person and a very simple scheule
-        requirements, or multiple locations scattered all over the world with
-        multiple employees amd rates, our system will handle anything you throw
-        at it with ease.
-      </p>
-      <img
-        className="globepic"
-        src={globe}
-        alt="Iron Reservations "
-        height="200"
-        width="200"
-      />
-    </div>
-  );
+
+const mystore = (mycompany) =>
+  new CustomStore({
+    key: "UNIQUEID",
+    load: (loadOptions) => {
+      let params = "?";
+      [
+        "skip",
+        "take",
+        "requireTotalCount",
+        "requireGroupCount",
+        "sort",
+        "filter",
+        "totalSummary",
+        "group",
+        "groupSummary",
+      ].forEach((i) => {
+        if (i in loadOptions && isNotEmpty(loadOptions[i])) {
+          params += `${i}=${JSON.stringify(loadOptions[i])}&`;
+        }
+      });
+
+      mycompany = 1;
+
+      params = params.slice(0, -1);
+      var requestoptions = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json;",
+        },
+        body: JSON.stringify({
+          SentCompany: mycompany,
+          Parameters: params,
+        }),
+      };
+      const url = `${process.env.REACT_APP_BASE_URL}/GetCompayHolidays`;
+      return fetch(url, requestoptions) // Request fish
+        .then((response) => {
+          if (!response.ok) {
+            return {
+              companyname: "System did not respond",
+              returnaddress: " ",
+            };
+          }
+          return response.json();
+        })
+        .then((json) => {
+          console.log(json);
+          return {
+            data: json.user_response.mdata,
+            totalCount: json.user_response.totalCount,
+            key: json.user_response.keyname,
+          };
+        });
+    },
+    insert: (values) => {
+      var requestoptions = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json;",
+        },
+        body: JSON.stringify({
+          ThisFunction: "insert",
+          keyvaluepair: values,
+          SentCompany: mycompany,
+        }),
+      };
+      const url = `${process.env.REACT_APP_BASE_URL}/updateCompanyHolidays`;
+      return fetch(url, requestoptions) // Request fish
+        .then((response) => {
+          if (!response.ok) {
+            return {
+              companyname: "System did not respond",
+              returnaddress: " ",
+            };
+          }
+          return response.json();
+        })
+        .then((json) => {
+          return {};
+        });
+    },
+    remove: (key) => {
+      //console.log(key);
+      //console.log(values);
+      var requestoptions = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json;",
+        },
+        body: JSON.stringify({
+          SentCompany: key,
+          ThisFunction: "delete",
+        }),
+      };
+      const url = `${process.env.REACT_APP_BASE_URL}/updateCompanyHolidays`;
+      return fetch(url, requestoptions) // Request fish
+        .then((response) => {
+          if (!response.ok) {
+            return {
+              companyname: "System did not respond",
+              returnaddress: " ",
+            };
+          }
+          return response.json();
+        })
+        .then((json) => {
+          return {};
+        });
+    },
+    update: (key, values) => {
+      console.log(key);
+      console.log(values);
+      var requestoptions = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json;",
+        },
+        body: JSON.stringify({
+          ThisFunction: "change",
+          SentCompany: key,
+          keyvaluepair: values,
+        }),
+      };
+      const url = `${process.env.REACT_APP_BASE_URL}/updateCompanyHolidays`;
+      return fetch(url, requestoptions) // Request fish
+        .then((response) => {
+          if (!response.ok) {
+            return {
+              companyname: "System did not respond",
+              returnaddress: " ",
+            };
+          }
+          return response.json();
+        })
+        .then((json) => {
+          return {};
+        });
+    },
+  });
+
+const turnoffedit = { disabled: true };
+
+const allowedPageSizes = [8, 12, 20];
+
+const holidayDateEditorOptions = { width: "100%", value: null };
+
+class CompanyHolidayx extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { sentcompany: this.props.companynumber };
+    //mystore.load();
+  }
+
+  render() {
+    return (
+      <>
+        <div className="left-side"></div>
+        <DataGrid
+          ref={(ref) => {
+            this.dataGrid = ref;
+          }}
+          dataSource={mystore(this.sentcompany)}
+          showBorders={true}
+          remoteOperations={true}
+          // selectedRowKeys={this.state.selectedItemKeys}
+          // onSelectionChanged={this.selectionChanged}
+        >
+          <Editing
+            mode="row"
+            allowUpdating={true}
+            allowAdding={true}
+            allowDeleting={true}
+          >
+            <Popup title="Employee Info" showTitle={true} />
+            <Form>
+              <Item itemType="group" caption="Company Holiday Schedule">
+                <Item
+                  dataField="DATEOFVACATION"
+                  editorType="dxDateBox"
+                  editorOptions={holidayDateEditorOptions}
+                >
+                  <Label render={LabelTemplate("event")} />
+                </Item>
+
+                <Item dataField="FULLDAY" />
+                <Item dataField="STARTTIME" />
+                <Item dataField="ENDTIME" />
+                <Item dataField="NOTES" />
+              </Item>
+            </Form>
+          </Editing>
+
+          <Column
+            dataField={"UNIQUEID"}
+            width={90}
+            hidingPriority={2}
+            visible={false}
+            allowEditing={false}
+          />
+          <Column
+            dataField={"COMPANYNUMBER"}
+            visible={false}
+            allowEditing={false}
+          />
+          <Column
+            dataField={"DATEOFVACATION"}
+            caption={"Date"}
+            hidingPriority={6}
+            allowEditing={true}
+            editorType="dxDateBox"
+          />
+          <Column
+            dataType="boolean"
+            dataField={"FULLDAY"}
+            caption={"Full Day"}
+            hidingPriority={5}
+            allowEditing={true}
+          />
+
+          <Column
+            //dataType="boolean"
+            dataField={"STARTTIME"}
+            caption={"Start Time"}
+            hidingPriority={7}
+            allowEditing={true}
+            format="##.00"
+          />
+          <Column
+            dataField={"ENDTIME"}
+            caption={"End Time"}
+            hidingPriority={7}
+            allowEditing={true}
+            format="##.00"
+          />
+          <Column
+            dataField={"NOTES"}
+            caption={"Notes"}
+            hidingPriority={7}
+            colSpan={2}
+            allowEditing={true}
+          />
+
+          <Paging defaultPageSize={12} />
+          <Pager
+            showPageSizeSelector={true}
+            allowedPageSizes={allowedPageSizes}
+          />
+        </DataGrid>
+      </>
+    );
+  }
 }
-const home = () => {
-  return (
-    <div className="App">
-      <div className="right-container">
-        <Card />
-        <Card2 />
-        <Card3 />
-      </div>
-    </div>
-  );
-};
 
-export default home;
-
-// function App() {
-//   return (
-//   <div className=”App”>
-//   <div class=”right-container”>
-
-//   <Card/>
-//   <Card/>
-//   <Card/>
-//   </div>
-//   </div>
-//   );
-//  }
+export default function Holiday() {
+  const { user } = useAuth();
+  //console.log({ user });
+  return <CompanyHolidayx companynumber={user.companynumber} />;
+}

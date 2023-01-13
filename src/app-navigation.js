@@ -8,21 +8,27 @@ export const navigation = [
   {
     text: " Company Information",
     path: "/companyProfile",
+    icon: "globe",
   },
-  {
-    text: " Employee Setup",
-    path: "/employee",
-  },
+
   {
     text: " Employee Management",
     path: "/employeeManagement",
+    icon: "group",
   },
   {
     text: "Holiday Management",
     path: "/holiday",
-  },
-  {
-    text: " New Employee",
-    path: "/newEmployee",
+    icon: "event",
   },
 ];
+
+// {
+//   text: " Employee Setup",
+//   path: "/employee",
+// },
+
+// {
+//   text: " New Employee",
+//   path: "/newEmployee",
+// },

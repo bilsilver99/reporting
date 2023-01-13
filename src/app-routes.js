@@ -17,16 +17,18 @@ const routes = [
     path: "/companyProfile",
     element: CompanyProfilePage,
   },
-  {
-    path: "/employee",
-    element: EmployeePage,
-  },
+
   {
     path: "/home",
     element: HomePage,
   },
+
   {
-    path: "/newEmployee",
+    path: "/holiday",
+    element: HolidayPage,
+  },
+  {
+    path: "/newemployee",
     element: newEmployeePage,
   },
 ];
@@ -37,3 +39,12 @@ export default routes.map((route) => {
     element: withNavigationWatcher(route.element, route.path),
   };
 });
+
+// {
+//   path: "/employee",
+//   element: EmployeePage,
+// },
+// {
+//   path: "/newEmployee",
+//   element: newEmployeePage,
+// },

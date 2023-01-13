@@ -13,7 +13,8 @@ import CustomStore from "devextreme/data/custom_store";
 import "devextreme/data/data_source";
 import "whatwg-fetch";
 import { useAuth } from "../../contexts/auth";
-import TextBox from "devextreme-react/text-box";
+//import TextBox from "devextreme-react/text-box";
+import { TabbedItem, Tab, SimpleItem } from "devextreme-react/form";
 //import { ItemDragging } from "devextreme-react/list";
 
 function isNotEmpty(value) {
@@ -171,7 +172,7 @@ const mystore = (mycompany) =>
     },
   });
 
-const turnoffedit = { disabled: true };
+//const turnoffedit = { disabled: true };
 
 const allowedPageSizes = [8, 12, 20];
 
@@ -184,27 +185,26 @@ class EmployeeManagementx extends React.Component {
 
   render() {
     return (
-      <>
-        <div className="left-side"></div>
-        <DataGrid
-          ref={(ref) => {
-            this.dataGrid = ref;
-          }}
-          dataSource={mystore(this.sentcompany)}
-          showBorders={true}
-          remoteOperations={true}
-          // selectedRowKeys={this.state.selectedItemKeys}
-          // onSelectionChanged={this.selectionChanged}
+      <DataGrid
+        ref={(ref) => {
+          this.dataGrid = ref;
+        }}
+        dataSource={mystore(this.sentcompany)}
+        showBorders={true}
+        remoteOperations={true}
+        // selectedRowKeys={this.state.selectedItemKeys}
+        // onSelectionChanged={this.selectionChanged}
+      >
+        <Editing
+          mode="popup"
+          allowUpdating={true}
+          allowAdding={true}
+          allowDeleting={true}
         >
-          <Editing
-            mode="popup"
-            allowUpdating={true}
-            allowAdding={true}
-            allowDeleting={true}
-          >
-            <Popup title="Employee Info" showTitle={true} />
-            <Form>
-              <Item itemType="group" caption="Personal Information">
+          <Popup title="Employee Info" showTitle={true} />
+          <Form>
+            <TabbedItem>
+              <Tab title="Employee Info">
                 <Item dataField="OPERATORNAME" />
                 <Item dataField="USERNAME" />
                 <Item dataField="USERPASSWORD" />
@@ -212,135 +212,136 @@ class EmployeeManagementx extends React.Component {
                 <Item dataField="ACTIVE" />
                 <Item dataField="ADMINISTRATOR" />
                 <Item dataField="EMPLOYEENOTES" />
-              </Item>
-              <Item itemType="group" caption="Days Available">
+              </Tab>
+              <Tab title="Days Available" colCount={1}>
                 <Item dataField={"MONDAY"} />
+
                 <Item dataField={"TUESDAY"} />
                 <Item dataField={"WEDNESDAY"} />
                 <Item dataField={"THURSDAY"} />
                 <Item dataField={"FRIDAY"} />
                 <Item dataField={"SATURDAY"} />
                 <Item dataField={"SUNDAY"} />
-              </Item>
-            </Form>
-          </Editing>
+              </Tab>
+              <Tab title="Holiday Schedule"></Tab>
+            </TabbedItem>
+          </Form>
+        </Editing>
+        <Column
+          dataField={"UNIQUEID"}
+          width={90}
+          hidingPriority={2}
+          visible={false}
+          allowEditing={false}
+        />
+        <Column
+          dataField={"COMPANYNUMBER"}
+          visible={false}
+          allowEditing={false}
+        />
+        <Column
+          dataField={"USERNAME"}
+          caption={"Username"}
+          hidingPriority={6}
+          allowEditing={true}
+        />
+        <Column
+          dataField={"USERPASSWORD"}
+          caption={"User Password"}
+          hidingPriority={5}
+          allowEditing={true}
+        />
 
-          <Column
-            dataField={"UNIQUEID"}
-            width={90}
-            hidingPriority={2}
-            visible={false}
-            allowEditing={false}
-          />
-          <Column
-            dataField={"COMPANYNUMBER"}
-            visible={false}
-            allowEditing={false}
-          />
-          <Column
-            dataField={"USERNAME"}
-            caption={"Username"}
-            hidingPriority={6}
-            allowEditing={true}
-          />
-          <Column
-            dataField={"USERPASSWORD"}
-            caption={"User Password"}
-            hidingPriority={5}
-            allowEditing={true}
-          />
+        <Column
+          //dataType="boolean"
+          dataField={"ADMINISTRATOR"}
+          caption={"Administrator"}
+          hidingPriority={7}
+          dataType="boolean"
+          allowEditing={true}
+        />
+        <Column
+          dataField={"OPERATORNAME"}
+          caption={"Employee Name"}
+          hidingPriority={7}
+          allowEditing={true}
+        />
+        <Column
+          dataField={"EMAILADDRESS"}
+          caption={"Employee Email Address"}
+          hidingPriority={7}
+          colSpan={2}
+          allowEditing={false}
+        />
+        <Column
+          dataField={"MONDAY"}
+          dataType="boolean"
+          caption={"Monday"}
+          hidingPriority={7}
+          allowEditing={true}
+        />
+        <Column
+          dataField={"TUESDAY"}
+          dataType="boolean"
+          caption={"Tuesday"}
+          hidingPriority={7}
+          allowEditing={true}
+        />
+        <Column
+          dataField={"WEDNESDAY"}
+          dataType="boolean"
+          caption={"Wednesday"}
+          hidingPriority={7}
+          allowEditing={true}
+        />
+        <Column
+          dataField={"THURSDAY"}
+          dataType="boolean"
+          caption={"Thursday"}
+          hidingPriority={7}
+          allowEditing={true}
+        />
+        <Column
+          dataField={"FRIDAY"}
+          dataType="boolean"
+          caption={"Friday"}
+          hidingPriority={7}
+          allowEditing={true}
+        />
+        <Column
+          dataField={"SATURDAY"}
+          dataType="boolean"
+          caption={"Saturday"}
+          hidingPriority={7}
+          allowEditing={true}
+        />
+        <Column
+          dataField={"SUNDAY"}
+          dataType="boolean"
+          caption={"Sunday"}
+          hidingPriority={7}
+          allowEditing={true}
+        />
+        <Column
+          dataField={"ACTIVE"}
+          dataType="boolean"
+          caption={"Active"}
+          hidingPriority={7}
+          allowEditing={true}
+        />
+        <Column
+          dataField={"EMPLOYEENOTES"}
+          caption={"Notes"}
+          hidingPriority={7}
+          allowEditing={true}
+        />
 
-          <Column
-            //dataType="boolean"
-            dataField={"ADMINISTRATOR"}
-            caption={"Administrator"}
-            hidingPriority={7}
-            dataType="boolean"
-            allowEditing={true}
-          />
-          <Column
-            dataField={"OPERATORNAME"}
-            caption={"Employee Name"}
-            hidingPriority={7}
-            allowEditing={true}
-          />
-          <Column
-            dataField={"EMAILADDRESS"}
-            caption={"Employee Email Address"}
-            hidingPriority={7}
-            colSpan={2}
-            allowEditing={false}
-          />
-          <Column
-            dataField={"MONDAY"}
-            dataType="boolean"
-            caption={"Monday"}
-            hidingPriority={7}
-            allowEditing={true}
-          />
-          <Column
-            dataField={"TUESDAY"}
-            dataType="boolean"
-            caption={"Tuesday"}
-            hidingPriority={7}
-            allowEditing={true}
-          />
-          <Column
-            dataField={"WEDNESDAY"}
-            dataType="boolean"
-            caption={"Wednesday"}
-            hidingPriority={7}
-            allowEditing={true}
-          />
-          <Column
-            dataField={"THURSDAY"}
-            dataType="boolean"
-            caption={"Thursday"}
-            hidingPriority={7}
-            allowEditing={true}
-          />
-          <Column
-            dataField={"FRIDAY"}
-            dataType="boolean"
-            caption={"Friday"}
-            hidingPriority={7}
-            allowEditing={true}
-          />
-          <Column
-            dataField={"SATURDAY"}
-            dataType="boolean"
-            caption={"Saturday"}
-            hidingPriority={7}
-            allowEditing={true}
-          />
-          <Column
-            dataField={"SUNDAY"}
-            dataType="boolean"
-            caption={"Sunday"}
-            hidingPriority={7}
-            allowEditing={true}
-          />
-          <Column
-            dataField={"ACTIVE"}
-            dataType="boolean"
-            caption={"Active"}
-            hidingPriority={7}
-            allowEditing={true}
-          />
-          <Column
-            dataField={"EMPLOYEENOTES"}
-            caption={"Notes"}
-            hidingPriority={7}
-            allowEditing={true}
-          />
-
-          <Paging defaultPageSize={12} />
-          <Pager
-            showPageSizeSelector={true}
-            allowedPageSizes={allowedPageSizes}
-          />
-        </DataGrid>
-      </>
+        <Paging defaultPageSize={12} />
+        <Pager
+          showPageSizeSelector={true}
+          allowedPageSizes={allowedPageSizes}
+        />
+      </DataGrid>
     );
   }
 }
