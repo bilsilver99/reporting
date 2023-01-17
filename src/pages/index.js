@@ -4,3 +4,4 @@ export { default as employeeManagementPage } from "./employeeManagement/employee
 export { default as EmployeePage } from "./employee/employee";
 export { default as newEmployeePage } from "./newEmployee/newEmployee";
 export { default as HolidayPage } from "./holiday/holiday";
+export { default as ShiftsPage } from "./shifts/shifts";

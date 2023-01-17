@@ -7,7 +7,6 @@ import DataGrid, {
   Form,
   Item,
   Popup,
-  Label,
 } from "devextreme-react/data-grid";
 
 import "devextreme-react/text-area";
@@ -17,7 +16,6 @@ import "whatwg-fetch";
 import { useAuth } from "../../contexts/auth";
 //import TextBox from "devextreme-react/text-box";
 //import { ItemDragging } from "devextreme-react/list";
-import LabelTemplate from "./LabelTemplate.js";
 function isNotEmpty(value) {
   return value !== undefined && value !== null && value !== "";
 }
@@ -64,7 +62,7 @@ const mystore = (mycompany) =>
           Parameters: params,
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/GetCompayHolidays`;
+      const url = `${process.env.REACT_APP_BASE_URL}/GetShiftTimes`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {
@@ -97,7 +95,7 @@ const mystore = (mycompany) =>
           SentCompany: mycompany,
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/updateCompanyHolidays`;
+      const url = `${process.env.REACT_APP_BASE_URL}/updateShiftTimes`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {
@@ -126,7 +124,7 @@ const mystore = (mycompany) =>
           ThisFunction: "delete",
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/updateCompanyHolidays`;
+      const url = `${process.env.REACT_APP_BASE_URL}/updateShiftTimes`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {
@@ -156,7 +154,7 @@ const mystore = (mycompany) =>
           keyvaluepair: values,
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/updateCompanyHolidays`;
+      const url = `${process.env.REACT_APP_BASE_URL}/updateShiftTimes`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {
@@ -173,13 +171,11 @@ const mystore = (mycompany) =>
     },
   });
 
-const turnoffedit = { disabled: true };
+//const turnoffedit = { disabled: true };
 
 const allowedPageSizes = [8, 12, 20];
 
-const holidayDateEditorOptions = { width: "100%", value: null };
-
-class CompanyHolidayx extends React.Component {
+class Shiftsx extends React.Component {
   constructor(props) {
     super(props);
     this.state = { sentcompany: this.props.companynumber };
@@ -190,11 +186,11 @@ class CompanyHolidayx extends React.Component {
     return (
       <div className="responsive-paddings">
         <DataGrid
-          width={800}
-          height={525}
           ref={(ref) => {
             this.dataGrid = ref;
           }}
+          width={700}
+          height={525}
           dataSource={mystore(this.sentcompany)}
           showBorders={true}
           remoteOperations={true}
@@ -209,19 +205,10 @@ class CompanyHolidayx extends React.Component {
           >
             <Popup title="Employee Info" showTitle={true} />
             <Form>
-              <Item itemType="group" caption="Company Holiday Schedule">
-                <Item
-                  dataField="DATEOFVACATION"
-                  editorType="dxDateBox"
-                  editorOptions={holidayDateEditorOptions}
-                >
-                  <Label render={LabelTemplate("event")} />
-                </Item>
-
-                <Item dataField="FULLDAY" />
+              <Item itemType="group" caption="Shift Schedule">
+                <Item dataField="SHIFTNAME" />
                 <Item dataField="STARTTIME" />
                 <Item dataField="ENDTIME" />
-                <Item dataField="NOTES" />
               </Item>
             </Form>
           </Editing>
@@ -239,22 +226,12 @@ class CompanyHolidayx extends React.Component {
             allowEditing={false}
           />
           <Column
-            dataField={"DATEOFVACATION"}
-            caption={"Date"}
+            dataField={"SHIFTNAME"}
+            caption={"Shift Description"}
             hidingPriority={6}
             allowEditing={true}
-            editorType="dxDateBox"
           />
           <Column
-            dataType="boolean"
-            dataField={"FULLDAY"}
-            caption={"Full Day"}
-            hidingPriority={5}
-            allowEditing={true}
-          />
-
-          <Column
-            //dataType="boolean"
             dataField={"STARTTIME"}
             caption={"Start Time"}
             hidingPriority={7}
@@ -268,13 +245,6 @@ class CompanyHolidayx extends React.Component {
             allowEditing={true}
             format="##.00"
           />
-          <Column
-            dataField={"NOTES"}
-            caption={"Notes"}
-            hidingPriority={7}
-            colSpan={2}
-            allowEditing={true}
-          />
 
           <Paging defaultPageSize={12} />
           <Pager
@@ -287,8 +257,10 @@ class CompanyHolidayx extends React.Component {
   }
 }
 
-export default function Holiday() {
+export default function Shifts() {
   const { user } = useAuth();
   //console.log({ user });
-  return <CompanyHolidayx companynumber={user.companynumber} />;
+  return <Shiftsx companynumber={user.companynumber} />;
 }
+
+//<div className="content-block dx-card responsive-paddings">

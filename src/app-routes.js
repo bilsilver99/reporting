@@ -5,6 +5,7 @@ import {
   EmployeePage,
   HolidayPage,
   newEmployeePage,
+  ShiftsPage,
 } from "./pages";
 import { withNavigationWatcher } from "./contexts/navigation";
 
@@ -30,6 +31,10 @@ const routes = [
   {
     path: "/newemployee",
     element: newEmployeePage,
+  },
+  {
+    path: "/shifts",
+    element: ShiftsPage,
   },
 ];
 

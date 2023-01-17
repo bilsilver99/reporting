@@ -95,10 +95,7 @@ function CompanyProfilex(props) {
   return (
     <React.Fragment>
       <h2 className={"content-block"}>Client Information</h2>
-      <div
-        className="content-block dx-card responsive-paddings'}>
-"
-      >
+      <div className="content-block dx-card responsive-paddings">
         <form onSubmit={companyUpdate}>
           <Form
             onContentReady={validateForm}
@@ -211,3 +208,5 @@ export default function CompanyProfile() {
 //   )}
 // </div>
 // </React.Fragment> */}
+
+//className="content-block dx-card responsive-paddings'}>

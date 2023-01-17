@@ -21,6 +21,11 @@ export const navigation = [
     path: "/holiday",
     icon: "event",
   },
+  {
+    text: "Shifts",
+    path: "/shifts",
+    icon: "event",
+  },
 ];
 
 // {
