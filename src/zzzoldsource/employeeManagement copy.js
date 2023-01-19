@@ -10,18 +10,24 @@ import DataGrid, {
   Form,
 } from "devextreme-react/data-grid";
 import "devextreme-react/text-area";
-
+import CustomStore from "devextreme/data/custom_store";
 import "devextreme/data/data_source";
 //import "whatwg-fetch";
 import { useAuth } from "../../contexts/auth";
 //import TextBox from "devextreme-react/text-box";
 import { TabbedItem, Tab } from "devextreme-react/ui/form";
 //import { ItemDragging } from "devextreme-react/list";
-import CustomStore from "devextreme/data/custom_store";
 
 function isNotEmpty(value) {
   return value !== undefined && value !== null && value !== "";
 }
+
+// function handleErrors(response) {
+//   if (!response.ok) {
+//     throw Error(response.statusText);
+//   }
+//   return response;
+// }
 
 const mystore = (mycompany) =>
   new CustomStore({
@@ -167,7 +173,8 @@ const mystore = (mycompany) =>
     },
   });
 
-const mystore2 = (mycompany, myemployee) =>
+////////////////////////////////////////////
+const mystore2 = (mycompany) =>
   new CustomStore({
     key: "UNIQUEID",
     load: (loadOptions) => {
@@ -187,10 +194,9 @@ const mystore2 = (mycompany, myemployee) =>
           params += `${i}=${JSON.stringify(loadOptions[i])}&`;
         }
       });
-      //myemployee = "b@b.com";
+
       //mycompany = 1;
-      console.log(myemployee);
-      console.log(mycompany);
+
       params = params.slice(0, -1);
       var requestoptions = {
         method: "POST",
@@ -200,11 +206,10 @@ const mystore2 = (mycompany, myemployee) =>
         },
         body: JSON.stringify({
           SentCompany: mycompany,
-          sentemployee: myemployee,
           Parameters: params,
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/GetEmployeeHolidays`;
+      const url = `${process.env.REACT_APP_BASE_URL}/GetOperatorsHolidays`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {
@@ -313,12 +318,14 @@ const mystore2 = (mycompany, myemployee) =>
     },
   });
 
+///////////////////////////////////////////
+
 const allowedPageSizes = [8, 12, 20];
 
 class EmployeeManagementx extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { mycompany: this.props.mycompany, myemployee: "" };
+    this.state = { mycompany: this.props.mycompany };
     //mystore.load();
   }
 
@@ -343,11 +350,12 @@ class EmployeeManagementx extends React.Component {
           >
             <Popup
               //titleRender={renderTitle}
-              showTitle={true}
-              width={1000}
+              showTitle={false}
+              width={700}
               height={525}
               showCloseButton={false}
             />
+
             <Form id="form" colCount={1} labelLocation="left">
               <TabbedItem>
                 <Tab title="Employee Info">
@@ -369,91 +377,65 @@ class EmployeeManagementx extends React.Component {
                   <Item dataField={"SATURDAY"} />
                   <Item dataField={"SUNDAY"} />
                 </Tab>
-                <Tab title="Holiday Schedule">
-                  <DataGrid
-                    ref={(ref) => {
-                      this.dataGrid = ref;
-                    }}
-                    dataSource={mystore2(
-                      this.state.mycompany,
-                      this.state.myemployee
-                    )}
-                    showBorders={true}
-                    remoteOperations={true}
-                    // selectedRowKeys={this.state.selectedItemKeys}
-                    // onSelectionChanged={this.selectionChanged}
-                  >
-                    <Editing
-                      mode="popup"
-                      allowUpdating={true}
-                      allowAdding={true}
-                      allowDeleting={true}
-                    >
-                      <Popup
-                        //titleRender={renderTitle}
-                        showTitle={false}
-                        width={700}
-                        height={525}
-                        showCloseButton={false}
-                      />
-                      <Form id="form" colCount={1} labelLocation="left">
-                        <Item dataField={"USERNAME"} />
-                        <Item dataField={"DATEOFVACATION"} />
-                        <Item dataField={"FULLDAY"} />
-                        <Item dataField={"STARTTIME"} />
-                        <Item dataField={"ENDTTIME"} />
-                        <Item dataField={"NOTES"} />
-                      </Form>
-                      <Column
-                        dataField={"UNIQUEID"}
-                        width={90}
-                        hidingPriority={2}
-                        visible={false}
-                        allowEditing={false}
-                      />
-                      <Column
-                        dataField={"COMPANYNUMBER"}
-                        visible={false}
-                        allowEditing={false}
-                      />
-                      <Column
-                        dataField={"USERNAME"}
-                        visible={false}
-                        allowEditing={false}
-                      />
-                      <Column
-                        dataField={"DATEOFVACATION"}
-                        caption={"Date"}
-                        hidingPriority={6}
-                        allowEditing={true}
-                        editorType="dxDateBox"
-                      />
-                      <Column
-                        dataType="boolean"
-                        dataField={"FULLDAY"}
-                        caption={"Full Day"}
-                        hidingPriority={5}
-                        allowEditing={true}
-                      />
+                <Tab title="Holiday Schedule"></Tab>
+                <DataGrid
+                  ref={(ref) => {
+                    this.dataGrid = ref;
+                  }}
+                  dataSource={mystore2(this.state.mycompany)}
+                  showBorders={true}
+                  remoteOperations={true}
+                  // selectedRowKeys={this.state.selectedItemKeys}
+                  // onSelectionChanged={this.selectionChanged}
+                >
+                  <Column
+                    dataField={"UNIQUEID"}
+                    width={90}
+                    hidingPriority={2}
+                    visible={false}
+                    allowEditing={false}
+                  />
+                  <Column
+                    dataField={"COMPANYNUMBER"}
+                    visible={false}
+                    allowEditing={false}
+                  />
+                  <Column
+                    dataField={"USERNAME"}
+                    visible={false}
+                    allowEditing={false}
+                  />
+                  <Column
+                    dataField={"DATEOFVACATION"}
+                    caption={"Date"}
+                    hidingPriority={6}
+                    allowEditing={true}
+                    editorType="dxDateBox"
+                  />
+                  <Column
+                    dataType="boolean"
+                    dataField={"FULLDAY"}
+                    caption={"Full Day"}
+                    hidingPriority={5}
+                    allowEditing={true}
+                  />
 
-                      <Column
-                        //dataType="boolean"
-                        dataField={"STARTTIME"}
-                        caption={"Start Time"}
-                        hidingPriority={7}
-                        allowEditing={true}
-                        format="##.00"
-                      />
-                      <Column
-                        dataField={"ENDTIME"}
-                        caption={"End Time"}
-                        hidingPriority={7}
-                        allowEditing={true}
-                        format="##.00"
-                      />
-                    </Editing>
-                  </DataGrid>
-                </Tab>
+                  <Column
+                    //dataType="boolean"
+                    dataField={"STARTTIME"}
+                    caption={"Start Time"}
+                    hidingPriority={7}
+                    allowEditing={true}
+                    format="##.00"
+                  />
+                  <Column
+                    dataField={"ENDTIME"}
+                    caption={"End Time"}
+                    hidingPriority={7}
+                    allowEditing={true}
+                    format="##.00"
+                  />
+                </DataGrid>
               </TabbedItem>
             </Form>
           </Editing>

@@ -10,18 +10,24 @@ import DataGrid, {
   Form,
 } from "devextreme-react/data-grid";
 import "devextreme-react/text-area";
-
+import CustomStore from "devextreme/data/custom_store";
 import "devextreme/data/data_source";
 //import "whatwg-fetch";
 import { useAuth } from "../../contexts/auth";
 //import TextBox from "devextreme-react/text-box";
 import { TabbedItem, Tab } from "devextreme-react/ui/form";
 //import { ItemDragging } from "devextreme-react/list";
-import CustomStore from "devextreme/data/custom_store";
 
 function isNotEmpty(value) {
   return value !== undefined && value !== null && value !== "";
 }
+
+// function handleErrors(response) {
+//   if (!response.ok) {
+//     throw Error(response.statusText);
+//   }
+//   return response;
+// }
 
 const mystore = (mycompany) =>
   new CustomStore({
@@ -167,6 +173,7 @@ const mystore = (mycompany) =>
     },
   });
 
+////////////////////////////////////////////
 const mystore2 = (mycompany, myemployee) =>
   new CustomStore({
     key: "UNIQUEID",
@@ -187,7 +194,7 @@ const mystore2 = (mycompany, myemployee) =>
           params += `${i}=${JSON.stringify(loadOptions[i])}&`;
         }
       });
-      //myemployee = "b@b.com";
+      myemployee = "b@b.com";
       //mycompany = 1;
       console.log(myemployee);
       console.log(mycompany);
@@ -313,12 +320,14 @@ const mystore2 = (mycompany, myemployee) =>
     },
   });
 
+///////////////////////////////////////////
+
 const allowedPageSizes = [8, 12, 20];
 
 class EmployeeManagementx extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { mycompany: this.props.mycompany, myemployee: "" };
+    this.state = { mycompany: this.props.mycompany, myemployee: "b@b.com" };
     //mystore.load();
   }
 
@@ -329,7 +338,7 @@ class EmployeeManagementx extends React.Component {
           ref={(ref) => {
             this.dataGrid = ref;
           }}
-          dataSource={mystore(this.state.mycompany)}
+          dataSource={mystore(this.state.mycompany, this.state.myemployee)}
           showBorders={true}
           remoteOperations={true}
           // selectedRowKeys={this.state.selectedItemKeys}
@@ -343,11 +352,12 @@ class EmployeeManagementx extends React.Component {
           >
             <Popup
               //titleRender={renderTitle}
-              showTitle={true}
-              width={1000}
+              showTitle={false}
+              width={700}
               height={525}
               showCloseButton={false}
             />
+
             <Form id="form" colCount={1} labelLocation="left">
               <TabbedItem>
                 <Tab title="Employee Info">
@@ -374,10 +384,7 @@ class EmployeeManagementx extends React.Component {
                     ref={(ref) => {
                       this.dataGrid = ref;
                     }}
-                    dataSource={mystore2(
-                      this.state.mycompany,
-                      this.state.myemployee
-                    )}
+                    dataSource={mystore2(this.state.mycompany)}
                     showBorders={true}
                     remoteOperations={true}
                     // selectedRowKeys={this.state.selectedItemKeys}
@@ -396,14 +403,6 @@ class EmployeeManagementx extends React.Component {
                         height={525}
                         showCloseButton={false}
                       />
-                      <Form id="form" colCount={1} labelLocation="left">
-                        <Item dataField={"USERNAME"} />
-                        <Item dataField={"DATEOFVACATION"} />
-                        <Item dataField={"FULLDAY"} />
-                        <Item dataField={"STARTTIME"} />
-                        <Item dataField={"ENDTTIME"} />
-                        <Item dataField={"NOTES"} />
-                      </Form>
                       <Column
                         dataField={"UNIQUEID"}
                         width={90}
