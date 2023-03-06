@@ -12,12 +12,8 @@ import DataGrid, {
 import "devextreme-react/text-area";
 
 import "devextreme/data/data_source";
-//import "whatwg-fetch";
 import { useAuth } from "../../contexts/auth";
-//import TextBox from "devextreme-react/text-box";
 import { TabbedItem, Tab } from "devextreme-react/ui/form";
-//import { ItemDragging } from "devextreme-react/list";
-//import CustomStore from "devextreme/data/custom_store";
 
 import { mystore, mystore2 } from "./EmployeeServices";
 
