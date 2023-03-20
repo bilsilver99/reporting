@@ -13,10 +13,14 @@ import DataGrid, {
 import "devextreme-react/text-area";
 
 import "devextreme/data/data_source";
+//import "whatwg-fetch";
 import { useAuth } from "../../contexts/auth";
+//import TextBox from "devextreme-react/text-box";
 import { TabbedItem, Tab } from "devextreme-react/ui/form";
-import DetailTemplate from "./detailTemplate";
-import { mystore } from "./EmployeeServices";
+//import { ItemDragging } from "devextreme-react/list";
+//import CustomStore from "devextreme/data/custom_store";
+
+import { mystore, mystore2 } from "./EmployeeServices";
 
 const allowedPageSizes = [8, 12, 20];
 
@@ -35,10 +39,13 @@ class EmployeeManagementx extends React.Component {
     return (
       <div className="content-block dx-card responsive-paddings">
         <DataGrid
+          ref={(ref) => {
+            this.dataGrid = ref;
+          }}
           dataSource={mystore(this.state.mycompany)}
           showBorders={true}
           remoteOperations={true}
-          //onRowClick={this.handleRowClick}
+          onRowClick={this.handleRowClick}
           // selectedRowKeys={this.state.selectedItemKeys}
           // onSelectionChanged={this.selectionChanged}
         >
@@ -75,10 +82,87 @@ class EmployeeManagementx extends React.Component {
                   <Item dataField={"SATURDAY"} />
                   <Item dataField={"SUNDAY"} />
                 </Tab>
+                <Tab title="Holiday Schedule">
+                  <DataGrid
+                    ref={(ref) => {
+                      this.dataGrid = ref;
+                    }}
+                    dataSource={mystore2(
+                      this.state.mycompany,
+                      this.state.myemployee
+                    )}
+                    showBorders={true}
+                    remoteOperations={true}
+                    // selectedRowKeys={this.state.selectedItemKeys}
+                    // onSelectionChanged={this.selectionChanged}
+                  >
+                    <Editing
+                      mode="popup"
+                      allowUpdating={true}
+                      allowAdding={true}
+                      allowDeleting={true}
+                    >
+                      <Popup
+                        //titleRender={renderTitle}
+                        showTitle={false}
+                        width={700}
+                        height={525}
+                        showCloseButton={false}
+                      />
+                      <Form id="form" colCount={1} labelLocation="left">
+                        <Item dataField={"USERNAME"} />
+                        <Item dataField={"DATEOFVACATION"} />
+                        <Item dataField={"FULLDAY"} />
+                        <Item dataField={"STARTTIME"} />
+                        <Item dataField={"ENDTTIME"} />
+                        <Item dataField={"NOTES"} />
+                      </Form>
+                      <Column
+                        dataField={"COMPANYNUMBER"}
+                        visible={false}
+                        allowEditing={false}
+                      />
+                      <Column
+                        dataField={"USERNAME"}
+                        visible={false}
+                        allowEditing={false}
+                      />
+                      <Column
+                        dataField={"DATEOFVACATION"}
+                        caption={"Date"}
+                        hidingPriority={6}
+                        allowEditing={true}
+                        editorType="dxDateBox"
+                      />
+                      <Column
+                        dataType="boolean"
+                        dataField={"FULLDAY"}
+                        caption={"Full Day"}
+                        hidingPriority={5}
+                        allowEditing={true}
+                      />
+
+                      <Column
+                        //dataType="boolean"
+                        dataField={"STARTTIME"}
+                        caption={"Start Time"}
+                        hidingPriority={7}
+                        allowEditing={true}
+                        format="##.00"
+                      />
+                      <Column
+                        dataField={"ENDTIME"}
+                        caption={"End Time"}
+                        hidingPriority={7}
+                        allowEditing={true}
+                        format="##.00"
+                      />
+                    </Editing>
+                  </DataGrid>
+                </Tab>
               </TabbedItem>
             </Form>
           </Editing>
-
           <Column
             dataField={"UNIQUEID"}
             width={90}
@@ -187,7 +271,7 @@ class EmployeeManagementx extends React.Component {
             hidingPriority={7}
             allowEditing={true}
           />
-          <MasterDetail enabled={true} component={DetailTemplate} />
+
           <Paging defaultPageSize={12} />
           <Pager
             showPageSizeSelector={true}

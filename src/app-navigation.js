@@ -26,6 +26,11 @@ export const navigation = [
     path: "/shifts",
     icon: "event",
   },
+  {
+    text: "Services",
+    path: "/services",
+    icon: "product",
+  },
 ];
 
 // {

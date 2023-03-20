@@ -173,7 +173,7 @@ const mystore = (mycompany) =>
     },
   });
 
-const turnoffedit = { disabled: true };
+//const turnoffedit = { disabled: true };
 
 const allowedPageSizes = [8, 12, 20];
 

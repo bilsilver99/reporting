@@ -37,7 +37,7 @@ export const mystore = (mycompany) =>
           Parameters: params,
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/GetOperators`;
+      const url = `${process.env.REACT_APP_BASE_URL}/GetServices`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {
@@ -70,7 +70,7 @@ export const mystore = (mycompany) =>
           SentCompany: mycompany,
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/updateOperators`;
+      const url = `${process.env.REACT_APP_BASE_URL}/updateServices`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {
@@ -99,7 +99,7 @@ export const mystore = (mycompany) =>
           ThisFunction: "delete",
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/updateOperators`;
+      const url = `${process.env.REACT_APP_BASE_URL}/updateServices`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {
@@ -129,7 +129,7 @@ export const mystore = (mycompany) =>
           keyvaluepair: values,
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/updateOperators`;
+      const url = `${process.env.REACT_APP_BASE_URL}/updateServices`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {

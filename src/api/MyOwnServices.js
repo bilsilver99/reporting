@@ -29,7 +29,7 @@ export const login = async (username, password) => {
       return response.json();
     })
     .then((json) => {
-      console.log(json);
+      //console.log(json);
       if (json.user_response.returnOK !== false) {
         return {
           clientname: json.user_response.ReturnClientName,

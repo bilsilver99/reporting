@@ -9,7 +9,7 @@ export async function signIn(email, password) {
     //console.log(email, password);
     await login(email, password).then((response) => {
       thisOK = response.returnOK;
-      console.log(thisOK);
+      //console.log(thisOK);
       currentUser.email = response.clientname;
       currentUser.companynumber = response.clientcompany;
       currentUser.avatarUrl =
