@@ -34,6 +34,7 @@ class EmployeeManagementx extends React.Component {
   render() {
     return (
       <div className="content-block dx-card responsive-paddings">
+        <h3>Employee management</h3>
         <DataGrid
           dataSource={mystore(this.state.mycompany)}
           showBorders={true}

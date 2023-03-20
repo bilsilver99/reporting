@@ -14,8 +14,8 @@ import "devextreme-react/text-area";
 
 import "devextreme/data/data_source";
 import { useAuth } from "../../contexts/auth";
-import { TabbedItem, Tab } from "devextreme-react/ui/form";
-//import DetailTemplate from "./detailTemplate";
+
+import ServiceLevels from "./serviceLevels";
 import { mystore } from "./ServiceServices";
 
 const allowedPageSizes = [8, 12, 20];
@@ -25,7 +25,7 @@ class Servicesx extends React.Component {
     super(props);
     this.state = {
       mycompany: this.props.mycompany,
-      myemployee: "",
+      servicelevel: this.props.sentservicelevelid,
       currentRow: 0,
     };
     //mystore.load();
@@ -34,6 +34,7 @@ class Servicesx extends React.Component {
   render() {
     return (
       <div className="content-block dx-card responsive-paddings">
+        <h3>Services Available</h3>
         <DataGrid
           dataSource={mystore(this.state.mycompany)}
           showBorders={true}
@@ -82,6 +83,7 @@ class Servicesx extends React.Component {
             hidingPriority={7}
             allowEditing={true}
           />
+          <MasterDetail enabled={true} component={ServiceLevels} />
           <Paging defaultPageSize={12} />
           <Pager
             showPageSizeSelector={true}
@@ -104,4 +106,4 @@ export default function Services() {
   return <Servicesx mycompany={user.companynumber} />;
 }
 
-//<MasterDetail enabled={true} component={DetailTemplate} />
+//<MasterDetail enabled={true} component={ServiceLevels} />

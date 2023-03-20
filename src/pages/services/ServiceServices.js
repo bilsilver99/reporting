@@ -40,6 +40,7 @@ export const mystore = (mycompany) =>
       const url = `${process.env.REACT_APP_BASE_URL}/GetServices`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
+          console.log(mycompany);
           if (!response.ok) {
             return {
               companyname: "System did not respond",
@@ -146,9 +147,9 @@ export const mystore = (mycompany) =>
     },
   });
 
-export const mystore2 = (mycompany, myemployee, USERNAME) =>
+export const mystore2 = (serviceID) =>
   new CustomStore({
-    key: "UNIQUEID2",
+    key: "UNIQUEID",
     load: (loadOptions) => {
       let params = "?";
       [
@@ -179,12 +180,11 @@ export const mystore2 = (mycompany, myemployee, USERNAME) =>
           Accept: "application/json;",
         },
         body: JSON.stringify({
-          SentCompany: mycompany,
-          sentemployee: myemployee,
+          sentservicelevelid: serviceID,
           Parameters: params,
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/GetEmployeeHolidays`;
+      const url = `${process.env.REACT_APP_BASE_URL}/GetServicelevels`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {
@@ -205,7 +205,7 @@ export const mystore2 = (mycompany, myemployee, USERNAME) =>
         });
     },
     insert: (values) => {
-      console.log(values, myemployee);
+      console.log(values, serviceID);
       var requestoptions = {
         method: "POST",
         headers: {
@@ -215,8 +215,7 @@ export const mystore2 = (mycompany, myemployee, USERNAME) =>
         body: JSON.stringify({
           ThisFunction: "insert",
           keyvaluepair: values,
-          SentCompany: mycompany,
-          username: myemployee,
+          sentservicelevelid: serviceID,
         }),
       };
       const url = `${process.env.REACT_APP_BASE_URL}/updateOperatorsHolidays`;

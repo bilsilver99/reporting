@@ -188,7 +188,8 @@ class CompanyHolidayx extends React.Component {
 
   render() {
     return (
-      <div className="responsive-paddings">
+      <div className="content-block dx-card responsive-paddings">
+        <h3>Holiday Schedule</h3>
         <DataGrid
           width={800}
           height={525}

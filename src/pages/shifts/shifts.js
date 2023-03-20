@@ -184,7 +184,8 @@ class Shiftsx extends React.Component {
 
   render() {
     return (
-      <div className="responsive-paddings">
+      <div className="content-block dx-card responsive-paddings">
+        <h3>Shifts</h3>
         <DataGrid
           ref={(ref) => {
             this.dataGrid = ref;
