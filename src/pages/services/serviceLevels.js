@@ -6,27 +6,59 @@ import DataGrid, {
   Item,
   Popup,
   Form,
-  RequiredRule,
 } from "devextreme-react/data-grid";
 import "devextreme-react/text-area";
+
+//import { Validator, RequiredRule } from "devextreme-react/validator";
 
 import "devextreme/data/data_source";
 //import { useAuth } from "../../contexts/auth";
 
 import DataSource from "devextreme/data/data_source";
-
+import SelectBox from "devextreme-react/select-box";
 import { mystore2 } from "./ServiceServices";
-const mycompany = 1;
-// const myemployee = "b@b.com";
+import { TabbedItem, Tab } from "devextreme-react/form";
 
-//const tasks = mystore2(mycompany, myemployee);
+class CustomEditor extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { editorValue: props.value };
+    this.handleValueChanged = this.handleValueChanged.bind(this);
+  }
 
+  handleValueChanged(e) {
+    this.setState({ editorValue: e.value });
+    this.props.onValueChanged(e.value);
+  }
+
+  render() {
+    return (
+      <SelectBox
+        items={this.props.options}
+        valueExpr="value"
+        displayExpr="text"
+        value={this.state.editorValue}
+        onValueChanged={this.handleValueChanged}
+      />
+    );
+  }
+}
 class ServiceLevels extends React.Component {
   // const [mycompany, setmycompany] = useState(1);
   // const [myemployee, setmyemployee] = useState("b@b.com");
   constructor(props) {
     super(props);
     this.dataSource = getTasks(props.data.data.UNIQUEID);
+    this.handleCellValueChanged = this.handleCellValueChanged.bind(this);
+    this.genders = [
+      { value: "P", text: "Product" },
+      { value: "S", text: "Service" },
+    ];
+    this.handleCellValueChanged = this.handleCellValueChanged.bind(this);
+  }
+
+  handleCellValueChanged(e) {
+    // Handle the cell value changed event
   }
 
   render() {
@@ -60,33 +92,49 @@ class ServiceLevels extends React.Component {
               <Item dataField="SERVICEOPTION" />
               <Item dataField="PRODUCTORSERVICE" />
               <Item dataField="DESCRIPTION" />
-              <Item dataField="HOURSREQUIRED" />
-              <Item dataField="RATEPERHOUR" />
-              <Item dataField="TOTALSERVICECOST" />
-              <Item dataField="PRODUCTID" />
-              <Item dataField="QUANTITYREQUIRED" />
-              <Item dataField="PRICEPERUNIT" />
-              <Item dataField="TOTALPRODUCTCOST" />
-              <Item dataField="TOTALCOST" />
-              <Item dataField="ACTIVE" />
-              <Item dataField="RATEPERHOUR" />
+              <TabbedItem>
+                <Tab title="Services">
+                  <Item dataField="HOURSREQUIRED" />
+                  <Item dataField="RATEPERHOUR" />
+                  <Item dataField="TOTALSERVICECOST" />
+                </Tab>
+                <Tab title="Product">
+                  <Item dataField="PRODUCTID" />
+                  <Item dataField="QUANTITYREQUIRED" />
+                  <Item dataField="PRICEPERUNIT" />
+                  <Item dataField="TOTALPRODUCTCOST" />
+                  <Item dataField="TOTALCOST" />
+                  <Item dataField="ACTIVE" />
+                  <Item dataField="RATEPERHOUR" />
+                </Tab>
+              </TabbedItem>
             </Form>
           </Editing>
-
           <Column
             dataField={"SERVICEOPTION"}
-            caption={"Option"}
+            caption={"Code"}
             hidingPriority={6}
             allowEditing={true}
-          >
-            <RequiredRule />
-          </Column>
+          ></Column>
           <Column
+            dataField={"PRODUCTORSERVICE"}
+            caption={"(P)roduct or (S)ervice)"}
+            defaultValue={this.dataSource.PRODUCTORSERVICE}
+            editCellTemplate={(cellElement, cellInfo) => (
+              <CustomEditor
+                value={cellInfo.value}
+                onValueChanged={cellInfo.setValue}
+                options={this.genders}
+              />
+            )}
+          />
+          {/* <Column
             dataField={"PRODUCTORSERVICE"}
             caption={"(P)roduct or (S)ervice)"}
             hidingPriority={5}
             allowEditing={true}
-          />
+            editCellTemplate={CustomEditor}
+            ></Column>*/}
           <Column
             dataField={"DESCRIPTION"}
             caption={"Description"}
@@ -169,6 +217,11 @@ function getTasks(key) {
   //new DataSource({ data: tasks });
 }
 
+function onValueChanged(e) {
+  this.dataSource.PRODUCTORSERVICE = e.value;
+  console.log(e.previousValue);
+  console.log(e.value);
+}
 // function getTasks(key) {
 //   return new DataSource({
 //     store: new ArrayStore({
