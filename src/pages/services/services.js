@@ -34,7 +34,7 @@ class Servicesx extends React.Component {
   render() {
     return (
       <div className="content-block dx-card responsive-paddings">
-        <h3>Services Available</h3>
+        <h3>Services and Products Available</h3>
         <DataGrid
           dataSource={mystore(this.state.mycompany)}
           showBorders={true}

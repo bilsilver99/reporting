@@ -6,8 +6,10 @@ import DataGrid, {
   Item,
   Popup,
   Form,
+  Lookup,
 } from "devextreme-react/data-grid";
 import "devextreme-react/text-area";
+import { useAuth } from "../../contexts/auth";
 
 //import { Validator, RequiredRule } from "devextreme-react/validator";
 
@@ -15,34 +17,9 @@ import "devextreme/data/data_source";
 //import { useAuth } from "../../contexts/auth";
 
 import DataSource from "devextreme/data/data_source";
-import SelectBox from "devextreme-react/select-box";
 import { mystore2 } from "./ServiceServices";
 import { TabbedItem, Tab } from "devextreme-react/form";
 
-class CustomEditor extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { editorValue: props.value };
-    this.handleValueChanged = this.handleValueChanged.bind(this);
-  }
-
-  handleValueChanged(e) {
-    this.setState({ editorValue: e.value });
-    this.props.onValueChanged(e.value);
-  }
-
-  render() {
-    return (
-      <SelectBox
-        items={this.props.options}
-        valueExpr="value"
-        displayExpr="text"
-        value={this.state.editorValue}
-        onValueChanged={this.handleValueChanged}
-      />
-    );
-  }
-}
 class ServiceLevels extends React.Component {
   // const [mycompany, setmycompany] = useState(1);
   // const [myemployee, setmyemployee] = useState("b@b.com");
@@ -61,6 +38,12 @@ class ServiceLevels extends React.Component {
     // Handle the cell value changed event
   }
 
+  handleScoreChange = (e) => {
+    const newData = [...this.state.dataSource];
+    const dataItem = newData.find((item) => item.id === e.data.id);
+    dataItem.score = // calculation logic based on the input value
+      this.setState({ dataSource: newData });
+  };
   render() {
     const { DESCRIPTION } = this.props.data.data;
     const { UNIQUEID } = this.props.data.data;
@@ -112,29 +95,19 @@ class ServiceLevels extends React.Component {
           </Editing>
           <Column
             dataField={"SERVICEOPTION"}
-            caption={"Code"}
+            caption={"Service Code"}
             hidingPriority={6}
             allowEditing={true}
           ></Column>
-          <Column
-            dataField={"PRODUCTORSERVICE"}
-            caption={"(P)roduct or (S)ervice)"}
-            defaultValue={this.dataSource.PRODUCTORSERVICE}
-            editCellTemplate={(cellElement, cellInfo) => (
-              <CustomEditor
-                value={cellInfo.value}
-                onValueChanged={cellInfo.setValue}
-                options={this.genders}
-              />
-            )}
-          />
-          {/* <Column
-            dataField={"PRODUCTORSERVICE"}
-            caption={"(P)roduct or (S)ervice)"}
-            hidingPriority={5}
-            allowEditing={true}
-            editCellTemplate={CustomEditor}
-            ></Column>*/}
+          <Column dataField="PRODUCTORSERVICE" caption="Product Or Service">
+            <Lookup
+              dataSource={this.genders}
+              displayExpr="text"
+              valueExpr="value"
+              defaultValue={this.dataSource.PRODUCTORSERVICE}
+              onValueChanged={onValueChanged}
+            />
+          </Column>
           <Column
             dataField={"DESCRIPTION"}
             caption={"Description"}
@@ -148,6 +121,7 @@ class ServiceLevels extends React.Component {
             allowEditing={true}
             format="##.000"
           />
+
           <Column
             dataField={"RATEPERHOUR"}
             caption={"Rate Per Hour"}
@@ -159,7 +133,7 @@ class ServiceLevels extends React.Component {
             dataField={"TOTALSERVICECOST"}
             caption={"Total Service Cost"}
             hidingPriority={7}
-            allowEditing={true}
+            allowEditing={false}
             format="##.00"
           />
           <Column
@@ -193,7 +167,7 @@ class ServiceLevels extends React.Component {
             dataField={"TOTALCOST"}
             caption={"Total Cost"}
             hidingPriority={7}
-            allowEditing={true}
+            allowEditing={false}
             format="##.00"
           />
           <Column
@@ -219,9 +193,17 @@ function getTasks(key) {
 
 function onValueChanged(e) {
   this.dataSource.PRODUCTORSERVICE = e.value;
+  console.log(this.dataSource.PRODUCTORSERVICE);
   console.log(e.previousValue);
   console.log(e.value);
 }
+
+function onServiceValueChanged(e) {
+  this.dataSource.TOTALSERVICECOST =
+    this.dataSource.HOURSREQUIRED * this.dataSource.RATEPERHOUR;
+  console.log(this.dataSource.TOTALSERVICECOST);
+}
+
 // function getTasks(key) {
 //   return new DataSource({
 //     store: new ArrayStore({

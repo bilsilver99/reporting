@@ -147,7 +147,7 @@ export const mystore = (mycompany) =>
     },
   });
 
-export const mystore2 = (serviceID) =>
+export const mystore2 = (serviceID, mycompany) =>
   new CustomStore({
     key: "UNIQUEID",
     load: (loadOptions) => {
@@ -218,7 +218,7 @@ export const mystore2 = (serviceID) =>
           sentservicelevelid: serviceID,
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/updateOperatorsHolidays`;
+      const url = `${process.env.REACT_APP_BASE_URL}/UpdateServicelevels`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {
@@ -247,7 +247,7 @@ export const mystore2 = (serviceID) =>
           ThisFunction: "delete",
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/updateOperatorsHolidays`;
+      const url = `${process.env.REACT_APP_BASE_URL}/UpdateServicelevels`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {
@@ -277,7 +277,7 @@ export const mystore2 = (serviceID) =>
           keyvaluepair: values,
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/updateOperatorsHolidays`;
+      const url = `${process.env.REACT_APP_BASE_URL}/UpdateServicelevels`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {
