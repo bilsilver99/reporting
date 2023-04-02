@@ -263,8 +263,8 @@ export const mystore2 = (serviceID, mycompany) =>
         });
     },
     update: (key, values) => {
-      console.log(key);
-      console.log(values);
+      //console.log(key);
+      //console.log(values);
       var requestoptions = {
         method: "POST",
         headers: {

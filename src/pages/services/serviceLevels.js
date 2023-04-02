@@ -1,15 +1,8 @@
 import React from "react";
 //import { Popup, Position, ToolbarItem } from "devextreme-react/popup";
-import DataGrid, {
-  Column,
-  Editing,
-  Item,
-  Popup,
-  Form,
-  Lookup,
-} from "devextreme-react/data-grid";
+import DataGrid, { Column, Editing, Lookup } from "devextreme-react/data-grid";
 import "devextreme-react/text-area";
-import { useAuth } from "../../contexts/auth";
+import "./App.css";
 
 //import { Validator, RequiredRule } from "devextreme-react/validator";
 
@@ -18,7 +11,8 @@ import "devextreme/data/data_source";
 
 import DataSource from "devextreme/data/data_source";
 import { mystore2 } from "./ServiceServices";
-import { TabbedItem, Tab } from "devextreme-react/form";
+//import { TabbedItem, Tab } from "devextreme-react/form";
+//import { Col } from "devextreme-react/responsive-box";
 
 class ServiceLevels extends React.Component {
   // const [mycompany, setmycompany] = useState(1);
@@ -26,158 +20,141 @@ class ServiceLevels extends React.Component {
   constructor(props) {
     super(props);
     this.dataSource = getTasks(props.data.data.UNIQUEID);
-    this.handleCellValueChanged = this.handleCellValueChanged.bind(this);
+    //this.handleCellValueChanged = this.handleCellValueChanged.bind(this);
     this.genders = [
       { value: "P", text: "Product" },
       { value: "S", text: "Service" },
     ];
-    this.handleCellValueChanged = this.handleCellValueChanged.bind(this);
+    //this.handleCellValueChanged = this.handleCellValueChanged.bind(this);
   }
 
-  handleCellValueChanged(e) {
-    // Handle the cell value changed event
+  handleDataChanged(e) {
+    e.component.repaintRows();
   }
 
-  handleScoreChange = (e) => {
-    const newData = [...this.state.dataSource];
-    const dataItem = newData.find((item) => item.id === e.data.id);
-    dataItem.score = // calculation logic based on the input value
-      this.setState({ dataSource: newData });
-  };
   render() {
     const { DESCRIPTION } = this.props.data.data;
-    const { UNIQUEID } = this.props.data.data;
+    //const { UNIQUEID } = this.props.data.data;
 
     return (
       <>
-        <div className="master-detail-caption">{`${DESCRIPTION} Services ${UNIQUEID}`}</div>
-        <DataGrid
-          dataSource={this.dataSource}
-          showBorders={true}
-          remoteOperations={true}
-          // selectedRowKeys={this.state.selectedItemKeys}
-          // onSelectionChanged={this.selectionChanged}
-        >
-          <Editing
-            mode="popup"
-            allowUpdating={true}
-            allowAdding={true}
-            allowDeleting={true}
+        <div className="content-block dx-card responsive-paddings red-color">
+          {DESCRIPTION} Services
+          <DataGrid
+            dataSource={this.dataSource}
+            //onCellValueChanged={this.handleDataChanged}
+            //onCellPrepared={this.onCellPrepared}
+            onRowRemoved={this.handleDataChanged}
+            editing={{
+              mode: "batch",
+              allowUpdating: true,
+              allowDeleting: true,
+              allowAdding: true,
+            }}
           >
-            <Popup
-              title={"Service Levels"}
-              showTitle={true}
-              width={700}
-              height={525}
-              showCloseButton={false}
+            <Column
+              dataField={"SERVICEOPTION"}
+              caption={"Service Codes"}
+              hidingPriority={7}
+              allowEditing={true}
+            ></Column>
+            <Column dataField="PRODUCTORSERVICE" caption="Product Or Service">
+              hidingPriority={7}
+              <Lookup
+                dataSource={this.genders}
+                displayExpr="text"
+                valueExpr="value"
+                defaultValue={this.dataSource.PRODUCTORSERVICE}
+                //onValueChanged={onValueChanged}
+              />
+            </Column>
+            <Column
+              dataField={"DESCRIPTION"}
+              caption={"Description"}
+              hidingPriority={7}
+              allowEditing={true}
             />
-            <Form id="form" colCount={1} labelLocation="left" showTitle={true}>
-              <Item dataField="SERVICEOPTION" />
-              <Item dataField="PRODUCTORSERVICE" />
-              <Item dataField="DESCRIPTION" />
-              <TabbedItem>
-                <Tab title="Services">
-                  <Item dataField="HOURSREQUIRED" />
-                  <Item dataField="RATEPERHOUR" />
-                  <Item dataField="TOTALSERVICECOST" />
-                </Tab>
-                <Tab title="Product">
-                  <Item dataField="PRODUCTID" />
-                  <Item dataField="QUANTITYREQUIRED" />
-                  <Item dataField="PRICEPERUNIT" />
-                  <Item dataField="TOTALPRODUCTCOST" />
-                  <Item dataField="TOTALCOST" />
-                  <Item dataField="ACTIVE" />
-                  <Item dataField="RATEPERHOUR" />
-                </Tab>
-              </TabbedItem>
-            </Form>
-          </Editing>
-          <Column
-            dataField={"SERVICEOPTION"}
-            caption={"Service Code"}
-            hidingPriority={6}
-            allowEditing={true}
-          ></Column>
-          <Column dataField="PRODUCTORSERVICE" caption="Product Or Service">
-            <Lookup
-              dataSource={this.genders}
-              displayExpr="text"
-              valueExpr="value"
-              defaultValue={this.dataSource.PRODUCTORSERVICE}
-              onValueChanged={onValueChanged}
+            <Column
+              dataField={"HOURSREQUIRED"}
+              caption={"Hours Required"}
+              hidingPriority={7}
+              allowEditing={true}
+              format="##.000"
+              onEditingCellChange={this.handleCellValueChanged}
             />
-          </Column>
-          <Column
-            dataField={"DESCRIPTION"}
-            caption={"Description"}
-            hidingPriority={7}
-            allowEditing={true}
-          />
-          <Column
-            dataField={"HOURSREQUIRED"}
-            caption={"Hours Required"}
-            hidingPriority={7}
-            allowEditing={true}
-            format="##.000"
-          />
-
-          <Column
-            dataField={"RATEPERHOUR"}
-            caption={"Rate Per Hour"}
-            hidingPriority={7}
-            allowEditing={true}
-            format="##.00"
-          />
-          <Column
-            dataField={"TOTALSERVICECOST"}
-            caption={"Total Service Cost"}
-            hidingPriority={7}
-            allowEditing={false}
-            format="##.00"
-          />
-          <Column
-            dataField={"PRODUCTID"}
-            caption={"Product"}
-            hidingPriority={7}
-            allowEditing={true}
-          />
-          <Column
-            dataField={"QUANTITYREQUIRED"}
-            caption={"Quantity Required"}
-            hidingPriority={7}
-            allowEditing={true}
-            format="##.00"
-          />
-          <Column
-            dataField={"PRICEPERUNIT"}
-            caption={"Unit Price"}
-            hidingPriority={7}
-            allowEditing={true}
-            format="##.00"
-          />
-          <Column
-            dataField={"TOTALPRODUCTCOST"}
-            caption={"Total Product Cost"}
-            hidingPriority={7}
-            allowEditing={true}
-            format="##.00"
-          />
-          <Column
+            <Column
+              dataField={"RATEPERHOUR"}
+              caption={"Rate Per Hour"}
+              hidingPriority={7}
+              allowEditing={true}
+              format="##.00"
+            />
+            <Column
+              caption="Total"
+              calculateCellValue={(row) => row.HOURSREQUIRED * row.RATEPERHOUR}
+              dataType="number"
+              format="##.00"
+              allowEditing={false}
+            />
+            <Column
+              dataField={"PRODUCTID"}
+              caption={"Product"}
+              hidingPriority={7}
+              allowEditing={true}
+            />
+            <Column
+              dataField={"QUANTITYREQUIRED"}
+              caption={"Quantity Required"}
+              hidingPriority={7}
+              allowEditing={true}
+              format="##.00"
+            />
+            <Column
+              dataField={"PRICEPERUNIT"}
+              caption={"Unit Price"}
+              hidingPriority={7}
+              allowEditing={true}
+              format="##.00"
+            />
+            <Column
+              caption="Total"
+              calculateCellValue={(row) =>
+                row.QUANTITYREQUIRED * row.PRICEPERUNIT
+              }
+              dataType="number"
+              format="##.00"
+              allowEditing={false}
+            />
+            <Column
+              caption="Total"
+              calculateCellValue={(row) =>
+                row.HOURSREQUIRED * row.RATEPERHOUR +
+                row.QUANTITYREQUIRED * row.PRICEPERUNIT
+              }
+              dataType="number"
+              format="##.00"
+              allowEditing={false}
+            />
             dataField={"TOTALCOST"}
             caption={"Total Cost"}
             hidingPriority={7}
             allowEditing={false}
-            format="##.00"
-          />
-          <Column
-            dataField={"ACTIVE"}
-            caption={"Active"}
-            hidingPriority={7}
-            allowEditing={true}
-            dataType="boolean"
-          />
-        </DataGrid>
+            format="##.00" />
+            <Column
+              dataField={"ACTIVE"}
+              caption={"Active"}
+              hidingPriority={7}
+              allowEditing={true}
+              dataType="boolean"
+            />
+            <Editing
+              mode="batch"
+              allowUpdating={true}
+              allowAdding={true}
+              allowDeleting={true}
+            ></Editing>
+          </DataGrid>
+        </div>
       </>
     );
   }
@@ -191,25 +168,14 @@ function getTasks(key) {
   //new DataSource({ data: tasks });
 }
 
-function onValueChanged(e) {
-  this.dataSource.PRODUCTORSERVICE = e.value;
-  console.log(this.dataSource.PRODUCTORSERVICE);
-  console.log(e.previousValue);
-  console.log(e.value);
-}
+// <Column
+//   dataField={"TOTALSERVICECOST"}
+//   caption={"Total Service Cost"}
+//   hidingPriority={7}
+//   allowEditing={false}
+//   format="##.00"
+//   calculateCellValue={this.calculateSalary}
+// />
 
-function onServiceValueChanged(e) {
-  this.dataSource.TOTALSERVICECOST =
-    this.dataSource.HOURSREQUIRED * this.dataSource.RATEPERHOUR;
-  console.log(this.dataSource.TOTALSERVICECOST);
-}
-
-// function getTasks(key) {
-//   return new DataSource({
-//     store: new ArrayStore({
-//       data: tasks,
-//       key: "ID",
-//     }),
-//     filter: ["EmployeeID", "=", key],
-//   });
-// }
+//<Item dataField="TOTALSERVICECOST" />
+//className="content-block dx-card responsive-paddings">
