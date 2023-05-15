@@ -15,12 +15,12 @@ import "devextreme-react/text-area";
 import "devextreme/data/data_source";
 import { useAuth } from "../../contexts/auth";
 
-import ServiceLevels from "./serviceLevels";
-import { mystore } from "./ServiceServices";
+//import ProductLevels from "./ProductLevels";
+import { mystore } from "./productservices";
 
 const allowedPageSizes = [8, 12, 20];
 
-class Servicesx extends React.Component {
+class Productsx extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -34,7 +34,7 @@ class Servicesx extends React.Component {
   render() {
     return (
       <div className="content-block dx-card responsive-paddings">
-        <h3>Services</h3>
+        <h3>Products Available for Sale</h3>
         <DataGrid
           dataSource={mystore(this.state.mycompany)}
           showBorders={true}
@@ -44,7 +44,7 @@ class Servicesx extends React.Component {
           // onSelectionChanged={this.selectionChanged}
         >
           <Editing
-            mode="popup"
+            mode="row"
             allowUpdating={true}
             allowAdding={true}
             allowDeleting={true}
@@ -57,14 +57,15 @@ class Servicesx extends React.Component {
               showCloseButton={false}
             />
             <Form id="form" colCount={1} labelLocation="left">
-              <Item dataField="SERVICECODE" />
+              <Item dataField="PRODUCTCODE" />
               <Item dataField="DESCRIPTION" />
+              <Item dataField="UNITPRICE" />
               <Item dataField="ACTIVE" />
             </Form>
           </Editing>
 
           <Column
-            dataField={"SERVICECODE"}
+            dataField={"PRODUCTCODE"}
             caption={"Code"}
             hidingPriority={6}
             allowEditing={true}
@@ -75,6 +76,13 @@ class Servicesx extends React.Component {
             hidingPriority={5}
             allowEditing={true}
           />
+          <Column
+            dataField={"UNITPRICE"}
+            caption={"Price Per"}
+            hidingPriority={5}
+            allowEditing={true}
+            format="##.00"
+          />
 
           <Column
             dataField={"ACTIVE"}
@@ -83,7 +91,6 @@ class Servicesx extends React.Component {
             hidingPriority={7}
             allowEditing={true}
           />
-          <MasterDetail enabled={true} component={ServiceLevels} />
           <Paging defaultPageSize={12} />
           <Pager
             showPageSizeSelector={true}
@@ -100,10 +107,10 @@ class Servicesx extends React.Component {
   };
 }
 
-export default function Services() {
+export default function Products() {
   const { user } = useAuth();
   //console.log({ user });
-  return <Servicesx mycompany={user.companynumber} />;
+  return <Productsx mycompany={user.companynumber} />;
 }
 
-//<MasterDetail enabled={true} component={ServiceLevels} />
+//          <MasterDetail enabled={true} component={ServiceLevels} />

@@ -26,7 +26,7 @@ class DetailTemplate extends React.Component {
   // const [myemployee, setmyemployee] = useState("b@b.com");
   constructor(props) {
     super(props);
-    this.dataSource = getTasks(props.data.data.USERNAME);
+    this.dataSource = getTasks(props.data.data.UNIQUEID);
   }
 
   render() {

@@ -54,6 +54,16 @@ class ServiceLevels extends React.Component {
                 hidingPriority={7}
                 allowEditing={true}
               ></Column>
+              <Column dataField="PRODUCTORSERVICE" caption="Product Or Service">
+                hidingPriority={7}
+                <Lookup
+                  dataSource={this.genders}
+                  displayExpr="text"
+                  valueExpr="value"
+                  defaultValue={this.dataSource.PRODUCTORSERVICE}
+                  //onValueChanged={onValueChanged}
+                />
+              </Column>
               <Column
                 dataField={"DESCRIPTION"}
                 caption={"Description"}
@@ -85,11 +95,49 @@ class ServiceLevels extends React.Component {
                 allowEditing={false}
               />
               <Column
-                dataField={"SLOTSAVAILABLE"}
-                caption={"Booking Slots"}
+                dataField={"PRODUCTDESCRIPTION"}
+                caption={"Product"}
                 hidingPriority={7}
                 allowEditing={true}
               />
+              <Column
+                dataField={"QUANTITYREQUIRED"}
+                caption={"Quantity Required"}
+                hidingPriority={7}
+                allowEditing={true}
+                format="##.00"
+              />
+              <Column
+                dataField={"PRICEPERUNIT"}
+                caption={"Unit Price"}
+                hidingPriority={7}
+                allowEditing={true}
+                format="##.00"
+              />
+              <Column
+                caption="Total"
+                calculateCellValue={(row) =>
+                  row.QUANTITYREQUIRED * row.PRICEPERUNIT
+                }
+                dataType="number"
+                format="##.00"
+                allowEditing={false}
+              />
+              <Column
+                caption="Total"
+                calculateCellValue={(row) =>
+                  row.HOURSREQUIRED * row.RATEPERHOUR +
+                  row.QUANTITYREQUIRED * row.PRICEPERUNIT
+                }
+                dataType="number"
+                format="##.00"
+                allowEditing={false}
+              />
+              dataField={"TOTALCOST"}
+              caption={"Total Cost"}
+              hidingPriority={7}
+              allowEditing={false}
+              format="##.00" />
               <Column
                 dataField={"ACTIVE"}
                 caption={"Active"}

@@ -3,6 +3,7 @@ export const navigation = [
     text: "Home",
     path: "/home",
     icon: "home",
+    tooltip: "home",
   },
 
   {
@@ -25,6 +26,11 @@ export const navigation = [
     text: "Shifts",
     path: "/shifts",
     icon: "event",
+  },
+  {
+    text: "Products",
+    path: "/products",
+    icon: "product",
   },
   {
     text: "Services",
