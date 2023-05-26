@@ -37,6 +37,11 @@ export const navigation = [
     path: "/services",
     icon: "product",
   },
+  {
+    text: "Schedule",
+    path: "/schedule",
+    icon: "product",
+  },
 ];
 
 // {

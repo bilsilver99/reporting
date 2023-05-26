@@ -1,0 +1,28 @@
+#scheduler {
+  height: 600px;
+}
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dropdown {
+  margin-bottom: 20px;
+}
+
+.scheduler {
+  width: 90%;
+  max-width: 800px;
+}
+.dx-dropdowneditor-input-wrapper {
+  width: 200px;
+  margin: 0 auto;
+}
+
+.dx-scrollview-content .dx-list-item {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
+  cursor: pointer;
+}
