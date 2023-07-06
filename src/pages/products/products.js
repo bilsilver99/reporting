@@ -8,7 +8,7 @@ import DataGrid, {
   Item,
   Popup,
   Form,
-  MasterDetail,
+  //MasterDetail,
 } from "devextreme-react/data-grid";
 import "devextreme-react/text-area";
 

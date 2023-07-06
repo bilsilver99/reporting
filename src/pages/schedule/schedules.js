@@ -1,16 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Scheduler, { View } from "devextreme-react/scheduler";
 import SelectBox from "devextreme-react/select-box";
 import "./schedule.scss";
 import { appointments } from "./data";
-
+import { useAuth } from "../../contexts/auth";
+import { mystore, myshift } from "./ScheduleServices";
 const employees = ["sam", "lou"];
 const views = ["Day", "Week", "Month"];
-const durations = [
-  { label: "Haircut", value: 15 },
-  { label: "Trim", value: 60 },
-  { label: "Dye", value: 90 },
-];
+const durations = [];
+//   { label: "Haircut", value: 15 },
+//   { label: "Trim", value: 60 },
+//   { label: "Dye", value: 90 },
+// ];
 const currentDate = new Date();
 
 // const bookedAppointments = [
@@ -20,16 +21,56 @@ const currentDate = new Date();
 // ];
 
 const SchedulerComponent = () => {
+  const { user } = useAuth();
+  //console.log({ user });
+
+  const [durationsdata, setDurationsData] = React.useState(durations);
   const [currentViewName, setCurrentViewName] = React.useState("Day");
   const [currentCellDuration, setCurrentCellDuration] = React.useState(60);
   const [currentEmployeeName, setCurrentEmployeeName] = React.useState("");
+  const [allowAdding, setAllowAdding] = React.useState(true);
+  const [allowDeleting, setAllowDeleting] = React.useState(true);
+  const [allowUpdating, setAllowUpdating] = React.useState(false);
+  const [startDayHour, setStartDayHour] = React.useState(7);
+  const [endDayHour, setEndDayHour] = React.useState(17);
+  const [key, setKey] = React.useState(Math.random());
 
-  const startDayHour = 8; // Start at 8:00 AM
-  const endDayHour = 18; // End at 6:00 PM
+  //const startDayHour = 8; // Start at 8:00 AM
+  // const endDayHour = 19; // End at 6:00 PM
+
+  useEffect(() => {
+    (async () => {
+      const result = await mystore(user.companynumber);
+      console.log("service levels", result);
+      setDurationsData(result.data);
+      setKey(Math.random());
+    })();
+    //getemployee(service.getEmployee());
+
+    return () => {
+      // this now gets called when the component unmounts
+    };
+  }, [user.companynumber]);
+
+  useEffect(() => {
+    (async () => {
+      const result = await myshift(user.companynumber);
+      //console.log(result);
+
+      setStartDayHour(result.startshift);
+      setEndDayHour(result.endshift);
+      //console.log("start", startDayHour, "end", endDayHour);
+    })();
+    //getemployee(service.getEmployee());
+
+    return () => {
+      // this now gets called when the component unmounts
+    };
+  }, [user]);
 
   // const isAppointmentDisabled = (appointmentData) => {
   //   // Check if the appointment falls within any existing appointments
-  //   for (const appt of bookedAppointments) {
+  //   for (const appt of appointments) {
   //     const start = new Date(appt.startTime);
   //     const end = new Date(appt.endTime);
 
@@ -46,8 +87,11 @@ const SchedulerComponent = () => {
 
   return (
     <div className="app">
-      <div className="dropdown" style={{ width: "850px", margin: "20px auto" }}>
-        <div style={{ display: "flex", alignItems: "center" }}>
+      <div
+        className="dropdown"
+        //style={{ margin: "20px auto", alignItems: "center" }}
+      >
+        <div style={{ display: "flex", alignItems: "left" }}>
           <p style={{ marginRight: "10px" }}>Employee:</p>
           <SelectBox
             style={{ width: "200px" }}
@@ -58,23 +102,25 @@ const SchedulerComponent = () => {
         </div>
 
         <div
-          style={{ display: "flex", alignItems: "center", marginLeft: "20px" }}
+          style={{ display: "flex", alignItems: "left", marginLeft: "20px" }}
         >
           <p style={{ marginRight: "10px" }}>View:</p>
           <SelectBox
-            style={{ width: "200px" }}
+            style={{ width: "150px" }}
             items={views}
             value={currentViewName}
             onValueChanged={(e) => setCurrentViewName(e.value)}
           />
         </div>
         <div
+          className="service-select-container"
           style={{ display: "flex", alignItems: "center", marginLeft: "20px" }}
         >
-          <p style={{ marginRight: "10px" }}>Duration:</p>
+          <p style={{ marginRight: "10px" }}>Service:</p>
           <SelectBox
-            style={{ width: "200px" }}
-            items={durations}
+            key={key}
+            style={{ width: "400px" }}
+            items={durationsdata}
             valueExpr="value"
             displayExpr="label"
             value={currentCellDuration}
@@ -82,22 +128,26 @@ const SchedulerComponent = () => {
           />
         </div>
       </div>
+
       <div className="scheduler">
         <Scheduler
           dataSource={appointments}
           defaultCurrentDate={currentDate}
-          height={600}
+          //height={800}
+          //width={200}
+          backgroundColor="red"
           useDropDownViewSwitcher={false}
           currentView={currentViewName}
           cellDuration={currentCellDuration}
           startDayHour={startDayHour}
           endDayHour={endDayHour}
-          editing={{
-            allowAdding: true,
-            allowDeleting: true,
-            // allowEditing: ({ appointmentData }) =>
-            //   !isAppointmentDisabled(appointmentData),
-          }}
+          editing={{ allowDeleting, allowAdding, allowUpdating }}
+          // editing={{
+          //   allowAdding: true,
+          //   allowDeleting: true,
+          //   allowEditing: ({ appointmentData }) =>
+          //     !isAppointmentDisabled(appointmentData),
+          // }}
         >
           <View name="Day" type="day" />
           <View name="Week" type="week" />
@@ -109,3 +159,5 @@ const SchedulerComponent = () => {
 };
 
 export default SchedulerComponent;
+
+

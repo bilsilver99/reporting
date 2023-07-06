@@ -2,7 +2,7 @@ import React from "react";
 //import { Popup, Position, ToolbarItem } from "devextreme-react/popup";
 import DataGrid, { Column, Editing, Lookup } from "devextreme-react/data-grid";
 import "devextreme-react/text-area";
-import "./App.css";
+import "./App.scss";
 
 //import { Validator, RequiredRule } from "devextreme-react/validator";
 
@@ -65,9 +65,18 @@ class ServiceLevels extends React.Component {
                 caption={"Hours Required"}
                 hidingPriority={7}
                 allowEditing={true}
-                format="##.000"
+                format="###"
                 onEditingCellChange={this.handleCellValueChanged}
               />
+              <Column
+                dataField={"MINUTESREQUIRED"}
+                caption={"Minutes Required"}
+                hidingPriority={7}
+                allowEditing={true}
+                format="##"
+                onEditingCellChange={this.handleCellValueChanged}
+              />
+
               <Column
                 dataField={"RATEPERHOUR"}
                 caption={"Rate Per Hour"}
