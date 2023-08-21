@@ -12,7 +12,7 @@
 
 .dropdown {
   margin-bottom: 20px;
-  margin:20px auto;
+  margin: 20px auto;
   align-items: center;
   //width: 400px; /* Adjust width as needed */
   display: flex; /* Added */
@@ -49,4 +49,12 @@
 }
 .service-select-container {
   width: 300px;
+}
+
+.cell-duration-20 {
+  height: 40px !important;
+}
+
+.cell-duration-60 {
+  height: 20px !important;
 }

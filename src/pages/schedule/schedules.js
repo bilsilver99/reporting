@@ -26,7 +26,8 @@ const SchedulerComponent = () => {
 
   const [durationsdata, setDurationsData] = React.useState(durations);
   const [currentViewName, setCurrentViewName] = React.useState("Day");
-  const [currentCellDuration, setCurrentCellDuration] = React.useState(60);
+  const [currentCellDuration, setCurrentCellDuration] = React.useState(15);
+  //const [thisTypeDuration, setThisTypeDuration] = React.useState(15);
   const [currentEmployeeName, setCurrentEmployeeName] = React.useState("");
   const [allowAdding, setAllowAdding] = React.useState(true);
   const [allowDeleting, setAllowDeleting] = React.useState(true);
@@ -35,55 +36,37 @@ const SchedulerComponent = () => {
   const [endDayHour, setEndDayHour] = React.useState(17);
   const [key, setKey] = React.useState(Math.random());
 
+  const [schedulerHeight, setSchedulerHeight] = React.useState(580);
+
+  //const [currentDuration, setCurrentDuration] = React.useState(60);
+
+  // const setThisTypeDurationNew = (e) => {
+  //   setThisTypeDuration(e.value);
+  //   console.log("duration ", thisTypeDuration);
+  // };
+
   //const startDayHour = 8; // Start at 8:00 AM
   // const endDayHour = 19; // End at 6:00 PM
 
   useEffect(() => {
     (async () => {
-      const result = await mystore(user.companynumber);
-      console.log("service levels", result);
-      setDurationsData(result.data);
+      // Fetching service levels data
+      const resultServiceLevels = await mystore(user.companynumber);
+      console.log("service levels", resultServiceLevels);
+      setDurationsData(resultServiceLevels.data);
       setKey(Math.random());
+
+      // Fetching shift data
+      const resultShift = await myshift(user.companynumber);
+      setStartDayHour(resultShift.startshift);
+      setEndDayHour(resultShift.endshift);
+      console.log("start", resultShift.startshift, "end", resultShift.endshift);
     })();
-    //getemployee(service.getEmployee());
 
     return () => {
-      // this now gets called when the component unmounts
-    };
-  }, [user.companynumber]);
-
-  useEffect(() => {
-    (async () => {
-      const result = await myshift(user.companynumber);
-      //console.log(result);
-
-      setStartDayHour(result.startshift);
-      setEndDayHour(result.endshift);
-      //console.log("start", startDayHour, "end", endDayHour);
-    })();
-    //getemployee(service.getEmployee());
-
-    return () => {
-      // this now gets called when the component unmounts
+      // This now gets called when the component unmounts
     };
   }, [user]);
-
-  // const isAppointmentDisabled = (appointmentData) => {
-  //   // Check if the appointment falls within any existing appointments
-  //   for (const appt of appointments) {
-  //     const start = new Date(appt.startTime);
-  //     const end = new Date(appt.endTime);
-
-  //     if (
-  //       appointmentData.startDate >= start &&
-  //       appointmentData.endDate <= end
-  //     ) {
-  //       return true; // Disable the appointment
-  //     }
-  //   }
-
-  //   return false; // Enable the appointment
-  // };
 
   return (
     <div className="app">
@@ -133,6 +116,7 @@ const SchedulerComponent = () => {
         <Scheduler
           dataSource={appointments}
           defaultCurrentDate={currentDate}
+          height={schedulerHeight}
           //height={800}
           //width={200}
           backgroundColor="red"
@@ -160,4 +144,49 @@ const SchedulerComponent = () => {
 
 export default SchedulerComponent;
 
+// useEffect(() => {
+//   (async () => {
+//     const result = await mystore(user.companynumber);
+//     console.log("service levels", result);
+//     setDurationsData(result.data);
+//     setKey(Math.random());
+//   })();
+//   //getemployee(service.getEmployee());
 
+//   return () => {
+//     // this now gets called when the component unmounts
+//   };
+// }, [user]);
+
+// useEffect(() => {
+//   (async () => {
+//     const result = await myshift(user.companynumber);
+//     //console.log(result);
+
+//     setStartDayHour(result.startshift);
+//     setEndDayHour(result.endshift);
+//     console.log("start", startDayHour, "end", endDayHour);
+//   })();
+//   //getemployee(service.getEmployee());
+
+//   return () => {
+//     // this now gets called when the component unmounts
+//   };
+// }, [user]);
+
+// const isAppointmentDisabled = (appointmentData) => {
+//   // Check if the appointment falls within any existing appointments
+//   for (const appt of appointments) {
+//     const start = new Date(appt.startTime);
+//     const end = new Date(appt.endTime);
+
+//     if (
+//       appointmentData.startDate >= start &&
+//       appointmentData.endDate <= end
+//     ) {
+//       return true; // Disable the appointment
+//     }
+//   }
+
+//   return false; // Enable the appointment
+// };
