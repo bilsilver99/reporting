@@ -9,18 +9,13 @@ function Card() {
   return (
     <div className="card">
       <div className="card-top">
-        <h2>Our System</h2>
+        <h2>Reporting</h2>
       </div>
-      <p className="ParagraphSpace">
-        Our reservation system is designed to supply easy-to-manage
-        low cost subscription and booking management for your business. Whether
-        you run a barbershop, a hair salon or a dentist office, we have a
-        solution to fit your needs.
-      </p>
+      <p className="ParagraphSpace">Reporting Management</p>
       <img
         className="systempic"
         src={system}
-        alt="Iron Reservations "
+        alt="CER Reporting System"
         height="200"
         width="200"
       />
@@ -78,8 +73,8 @@ const home = () => {
     <div className="App">
       <div className="right-container">
         <Card />
-        <Card2 />
-        <Card3 />
+        {/* <Card2 />
+        <Card3 /> */}
       </div>
     </div>
   );
