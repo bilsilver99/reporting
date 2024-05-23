@@ -1,56 +1,37 @@
 import {
   HomePage,
-  EmployeeManagementPage,
   CompanyProfilePage,
-  //EmployeePage,
-  HolidayPage,
-  newEmployeePage,
-  ShiftsPage,
-  ServicesPage,
-  ProductsPage,
-  SchedulesPage,
+  ReportingPage,
+  OperatorsPage,
+  CompaniesPage,
+  ReportGroupsPage,
 } from "./pages";
 import { withNavigationWatcher } from "./contexts/navigation";
+import path from "path-browserify";
 
 const routes = [
   {
-    path: "/employeeManagement",
-    element: EmployeeManagementPage,
+    path: "/reporting",
+    element: ReportingPage,
   },
   {
     path: "/companyProfile",
     element: CompanyProfilePage,
+  },
+  {
+    path: "/operators",
+    element: OperatorsPage,
   },
 
   {
     path: "/home",
     element: HomePage,
   },
-
   {
-    path: "/holiday",
-    element: HolidayPage,
+    path: "/companies",
+    element: CompaniesPage,
   },
-  {
-    path: "/newemployee",
-    element: newEmployeePage,
-  },
-  {
-    path: "/shifts",
-    element: ShiftsPage,
-  },
-  {
-    path: "/products",
-    element: ProductsPage,
-  },
-  {
-    path: "/services",
-    element: ServicesPage,
-  },
-  {
-    path: "/schedule",
-    element: SchedulesPage,
-  },
+  { path: "/reportGroups", element: ReportGroupsPage },
 ];
 
 export default routes.map((route) => {

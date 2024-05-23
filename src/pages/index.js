@@ -1,10 +1,6 @@
 export { default as HomePage } from "./home/home";
 export { default as CompanyProfilePage } from "./companyProfile/companyProfile";
-export { default as EmployeeManagementPage } from "./employeeManagement/employeeManagement";
-//export { default as EmployeePage } from "./employee/employee";
-export { default as newEmployeePage } from "./newEmployee/newEmployee";
-export { default as HolidayPage } from "./holiday/holiday";
-export { default as ShiftsPage } from "./shifts/shifts";
-export { default as ServicesPage } from "./services/services";
-export { default as ProductsPage } from "./products/products";
-export { default as SchedulesPage } from "./schedule/schedules";
+export { default as ReportingPage } from "./reporting/reporting";
+export { default as OperatorsPage } from "./operators/operators";
+export { default as CompaniesPage } from "./companies/companies";
+export { default as ReportGroupsPage } from "./reportGroups/reportGroups";

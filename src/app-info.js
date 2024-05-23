@@ -1,4 +1,4 @@
 const appInfo = {
-  title: "Reservation Management System",
+  title: "Reporting System",
 };
 export default appInfo;

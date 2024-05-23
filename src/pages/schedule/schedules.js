@@ -1,24 +1,23 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import Scheduler, { View } from "devextreme-react/scheduler";
 import SelectBox from "devextreme-react/select-box";
 import "./schedule.scss";
-import { appointments } from "./data";
 import { useAuth } from "../../contexts/auth";
-import { mystore, myshift } from "./ScheduleServices";
+import {
+  mystore,
+  myshift,
+  myEmployees,
+  myAppointments,
+  addAppointment,
+  deleteAppointment,
+  updateAppointment,
+  getCurrentOption,
+  getendtime,
+} from "./ScheduleServices";
 const employees = ["sam", "lou"];
 const views = ["Day", "Week", "Month"];
 const durations = [];
-//   { label: "Haircut", value: 15 },
-//   { label: "Trim", value: 60 },
-//   { label: "Dye", value: 90 },
-// ];
 const currentDate = new Date();
-
-// const bookedAppointments = [
-//   // Mock data for booked appointments
-//   { startTime: "10:00", endTime: "11:00" },
-//   { startTime: "13:00", endTime: "14:00" },
-// ];
 
 const SchedulerComponent = () => {
   const { user } = useAuth();
@@ -27,7 +26,6 @@ const SchedulerComponent = () => {
   const [durationsdata, setDurationsData] = React.useState(durations);
   const [currentViewName, setCurrentViewName] = React.useState("Day");
   const [currentCellDuration, setCurrentCellDuration] = React.useState(15);
-  //const [thisTypeDuration, setThisTypeDuration] = React.useState(15);
   const [currentEmployeeName, setCurrentEmployeeName] = React.useState("");
   const [allowAdding, setAllowAdding] = React.useState(true);
   const [allowDeleting, setAllowDeleting] = React.useState(true);
@@ -35,38 +33,186 @@ const SchedulerComponent = () => {
   const [startDayHour, setStartDayHour] = React.useState(7);
   const [endDayHour, setEndDayHour] = React.useState(17);
   const [key, setKey] = React.useState(Math.random());
+  const [employeesData, setEmployeesData] = React.useState(employees);
+  const [activitykey, setActivityKey] = React.useState();
 
-  const [schedulerHeight, setSchedulerHeight] = React.useState(580);
+  const [appointments, setAppointmentsData] = React.useState("");
 
-  //const [currentDuration, setCurrentDuration] = React.useState(60);
+  const [schedulerHeight, setSchedulerHeight] = React.useState(800);
 
-  // const setThisTypeDurationNew = (e) => {
-  //   setThisTypeDuration(e.value);
-  //   console.log("duration ", thisTypeDuration);
-  // };
+  const setCurrentValues = async (e) => {
+    if (!e || !e.value) return;
+    console.log("value sent in", e.value);
+    const getmyvalues = await getCurrentOption(e.value);
+    //setCurrentTaskName(getmyvalues.label);
+    setCurrentCellDuration(getmyvalues.duration);
+    setActivityKey(getmyvalues.keyvalue);
+    // Use the values directly
+    console.log(
+      "duration xx ",
+      getmyvalues.duration,
+      "activity key xx",
+      getmyvalues.keyvalue,
+      //"Label xx:",
+      //getmyvalues.label,
+      "actual: ",
+      currentCellDuration
+      //"Name: ",
+      //currentTaskName
+    );
+  };
+  const onAppointmentFormOpening = useCallback(
+    async (e) => {
+      let form = e.form;
 
-  //const startDayHour = 8; // Start at 8:00 AM
-  // const endDayHour = 19; // End at 6:00 PM
+      form.option("items", [
+        // Other items...
+        {
+          dataField: "clientname",
+          editorType: "dxTextBox",
+          label: { text: "Client Name" },
+        },
+        {
+          dataField: "description",
+          editorType: "dxTextBox",
+          label: { text: "Description" },
+        },
+        {
+          dataField: "startDate",
+          editorType: "dxDateBox",
+          editorOptions: {
+            type: "datetime", // Correct placement within editorOptions
+            label: { text: "Start Date" },
+          },
+        },
+        {
+          dataField: "endDate",
+          editorType: "dxDateBox",
+          editorOptions: {
+            type: "datetime", // Correct placement within editorOptions
+            label: { text: "End Date" },
+          },
+        },
+        {
+          dataField: "text",
+          editorType: "dxTextBox",
+        },
+        // Add any other fields as needed
+      ]);
+
+      // Early return if editing an existing appointment (based on presence of an ID)
+      if (e.appointmentData.Id !== undefined) {
+        return;
+      }
+
+      // Logic for new appointments...
+      console.log("appointment data", e.appointmentData);
+      // Additional logic for handling new appointments
+
+      // Example async call to getendtime and subsequent updates
+      const thisstarttime = e.appointmentData.startDate;
+      const { enddate, activityname } = await getendtime(
+        thisstarttime,
+        currentCellDuration,
+        activitykey,
+        currentEmployeeName
+      );
+
+      // Update the form with the new end date and text
+      e.appointmentData.endDate = enddate;
+      e.appointmentData.text = activityname;
+      form.updateData({
+        endDate: e.appointmentData.endDate,
+        text: e.appointmentData.text,
+      });
+    },
+    [currentCellDuration, activitykey, currentEmployeeName]
+  );
+
+  const setEmployeeName = async (e) => {
+    setCurrentEmployeeName(e.value);
+    console.log("employee name", e.value, "label", e.label);
+  };
+
+  //////////////////////////////////////////////////////////
+  const handleAppointmentAdded = async (e) => {
+    try {
+      const response = await addAppointment(
+        user.companynumber,
+        currentEmployeeName,
+        e.appointmentData.startDate,
+        e.appointmentData.endDate,
+        e.appointmentData.description,
+        e.appointmentData.text,
+        activitykey
+        //currentCellkey
+      );
+      // handle success (maybe refresh appointments or show a success message)
+    } catch (error) {
+      console.error("Error adding appointment:", error);
+      // handle error (maybe show an error message to the user)
+    }
+  };
+
+  const handleAppointmentDeleted = async (e) => {
+    try {
+      // e.appointmentData contains the data of the deleted appointment
+      //const response = await deleteAppointment(e.appointmentData);
+      //console.log("appointment Deleted", e.appointmentData);
+      // handle success
+    } catch (error) {
+      //console.error("Error deleting appointment:", error);
+      // handle error
+    }
+  };
+
+  const handleAppointmentUpdated = async (e) => {
+    try {
+      // e.newData contains the updated data
+      // e.oldData contains the data before the update
+      //const response = await updateAppointment(e.newData);
+      //console.log("appointment Updated", e.appointmentData);
+      // handle success
+    } catch (error) {
+      //console.error("Error updating appointment:", error);
+      // handle error
+    }
+  };
+
+  //////////////////////////////////////////////////////////
 
   useEffect(() => {
     (async () => {
       // Fetching service levels data
       const resultServiceLevels = await mystore(user.companynumber);
-      console.log("service levels", resultServiceLevels);
       setDurationsData(resultServiceLevels.data);
-      setKey(Math.random());
+      console.log("service levels", resultServiceLevels.data);
+      setKey(resultServiceLevels.data.key);
 
       // Fetching shift data
       const resultShift = await myshift(user.companynumber);
       setStartDayHour(resultShift.startshift);
       setEndDayHour(resultShift.endshift);
-      console.log("start", resultShift.startshift, "end", resultShift.endshift);
+      //console.log("start", resultShift.startshift, "end", resultShift.endshift);
+
+      const resultEmployee = await myEmployees(user.companynumber);
+      //console.log("employee", resultEmployee);
+      setEmployeesData(resultEmployee.data);
+      setKey(Math.random());
+
+      const resultAppointments = await myAppointments(
+        user.companynumber,
+        currentEmployeeName
+      );
+      //console.log("Appointments", resultAppointments);
+      setAppointmentsData(resultAppointments.data);
+      setKey(Math.random());
     })();
 
     return () => {
       // This now gets called when the component unmounts
     };
-  }, [user]);
+  }, [user, currentEmployeeName]);
 
   return (
     <div className="app">
@@ -78,9 +224,13 @@ const SchedulerComponent = () => {
           <p style={{ marginRight: "10px" }}>Employee:</p>
           <SelectBox
             style={{ width: "200px" }}
-            items={employees}
+            items={employeesData}
+            valueExpr="value"
+            displayExpr="label"
             value={currentEmployeeName}
-            onValueChanged={(e) => setCurrentEmployeeName(e.value)}
+            //value={currentEmployeeName}
+            onValueChanged={setEmployeeName}
+            //onValueChanged={(e) => setCurrentEmployeeName(e.value)}
           />
         </div>
 
@@ -104,34 +254,36 @@ const SchedulerComponent = () => {
             key={key}
             style={{ width: "400px" }}
             items={durationsdata}
-            valueExpr="value"
+            valueExpr="keyvalue"
             displayExpr="label"
-            value={currentCellDuration}
-            onValueChanged={(e) => setCurrentCellDuration(e.value)}
+            //value={currentTaskName}
+            onValueChanged={setCurrentValues}
+            //onValueChanged={(e) => {
+            //  setCurrentCellDuration(e.value);
+            //}}
           />
         </div>
       </div>
 
-      <div className="scheduler">
+      <div className="scheduler" id="">
         <Scheduler
+          //crossScrollingEnabled={true}
+          showAllDayPanel={false}
           dataSource={appointments}
           defaultCurrentDate={currentDate}
           height={schedulerHeight}
           //height={800}
-          //width={200}
+          width={"100%"}
           backgroundColor="red"
           useDropDownViewSwitcher={false}
           currentView={currentViewName}
-          cellDuration={currentCellDuration}
+          //cellDuration={currentCellDuration}
           startDayHour={startDayHour}
           endDayHour={endDayHour}
           editing={{ allowDeleting, allowAdding, allowUpdating }}
-          // editing={{
-          //   allowAdding: true,
-          //   allowDeleting: true,
-          //   allowEditing: ({ appointmentData }) =>
-          //     !isAppointmentDisabled(appointmentData),
-          // }}
+          onAppointmentAdded={handleAppointmentAdded}
+          onAppointmentDeleted={handleAppointmentDeleted}
+          onAppointmentUpdated={handleAppointmentUpdated}
         >
           <View name="Day" type="day" />
           <View name="Week" type="week" />
@@ -143,50 +295,3 @@ const SchedulerComponent = () => {
 };
 
 export default SchedulerComponent;
-
-// useEffect(() => {
-//   (async () => {
-//     const result = await mystore(user.companynumber);
-//     console.log("service levels", result);
-//     setDurationsData(result.data);
-//     setKey(Math.random());
-//   })();
-//   //getemployee(service.getEmployee());
-
-//   return () => {
-//     // this now gets called when the component unmounts
-//   };
-// }, [user]);
-
-// useEffect(() => {
-//   (async () => {
-//     const result = await myshift(user.companynumber);
-//     //console.log(result);
-
-//     setStartDayHour(result.startshift);
-//     setEndDayHour(result.endshift);
-//     console.log("start", startDayHour, "end", endDayHour);
-//   })();
-//   //getemployee(service.getEmployee());
-
-//   return () => {
-//     // this now gets called when the component unmounts
-//   };
-// }, [user]);
-
-// const isAppointmentDisabled = (appointmentData) => {
-//   // Check if the appointment falls within any existing appointments
-//   for (const appt of appointments) {
-//     const start = new Date(appt.startTime);
-//     const end = new Date(appt.endTime);
-
-//     if (
-//       appointmentData.startDate >= start &&
-//       appointmentData.endDate <= end
-//     ) {
-//       return true; // Disable the appointment
-//     }
-//   }
-
-//   return false; // Enable the appointment
-// };
