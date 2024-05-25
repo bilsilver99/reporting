@@ -7,9 +7,10 @@ import DataGrid, {
   FilterRow,
   HeaderFilter,
   SearchPanel,
+  Lookup,
 } from "devextreme-react/data-grid";
 import { useAuth } from "../../contexts/auth";
-import { OperatorStore } from "./operatordata";
+import { OperatorStore, CompanyStore } from "./operatordata";
 
 const allowedPageSizes = [8, 12, 20];
 
@@ -20,37 +21,43 @@ const Operatorsx = ({ companyCode }) => {
   const [showFilterRow, setShowFilterRow] = useState(true);
   const [showHeaderFilter, setShowHeaderFilter] = useState(true);
   const [currentFilter, setCurrentFilter] = useState("auto");
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [companyCodes, setCompanyCodes] = useState([]);
 
   useEffect(() => {
-    // if (companyCode) {
-    const store = OperatorStore(companyCode);
-    setOperatorStore(store);
-    // }
-  }, [companyCode, refreshKey]);
+    const fetchData = async () => {
+      const store = OperatorStore(companyCode);
+      setOperatorStore(store);
+
+      try {
+        const data = await CompanyStore();
+        console.log("companies js", data);
+
+        if (data && Array.isArray(data)) {
+          setCompanyCodes(data);
+        } else {
+          console.error("Invalid data format:", data);
+          setCompanyCodes([]); // Ensure it's an array to avoid length errors
+        }
+      } catch (error) {
+        console.error(
+          "There was an error fetching the company group data:",
+          error
+        );
+        setCompanyCodes([]); // Ensure it's an array to avoid length errors
+      }
+    };
+
+    fetchData();
+  }, [companyCode]);
 
   const handleSelectionChanged = (e) => {
     setSelectedRowKeys(e.selectedRowKeys);
     if (e.selectedRowKeys.length > 0) {
-      setCurrentRow(e.selectedRowKeys[0]); // update the current row
-      setRefreshKey((prevKey) => prevKey + 1);
+      setCurrentRow(e.selectedRowKeys[0]);
     }
   };
 
-  //   const handleEditingStart = (e) => {
-  //     console.log("Editing is starting for row", e.data);
-
-  //     // You can access the data of the row that is being edited
-  //     const rowToBeEdited = e.data;
-
-  //     // Perform any checks or logic you want here.
-  //     // For example, you might want to prevent editing if a certain condition is met:
-  //     if (rowToBeEdited.someField === "someValue") {
-  //       e.cancel = true; // Prevents the editing from starting
-  //     }
-  //   };
-
-  if (!operatorStore) {
+  if (!operatorStore || companyCodes.length === 0) {
     return <div>Loading...</div>;
   }
 
@@ -60,9 +67,7 @@ const Operatorsx = ({ companyCode }) => {
         dataSource={operatorStore}
         showBorders={true}
         remoteOperations={false}
-        key={refreshKey} // This key will force a refresh when it changes
         onSelectionChanged={handleSelectionChanged}
-        //onEditingStart={handleEditingStart}
       >
         <FilterRow visible={showFilterRow} applyFilter={currentFilter} />
         <HeaderFilter visible={showHeaderFilter} />
@@ -75,6 +80,13 @@ const Operatorsx = ({ companyCode }) => {
           allowDeleting={true}
         />
         <Column dataField="UNIQUEID" allowEditing={false} visible={false} />
+        <Column dataField="COMPANYNUMBER" caption="Company">
+          <Lookup
+            dataSource={companyCodes}
+            valueExpr="COMNUMBER"
+            displayExpr="COMNAME"
+          />
+        </Column>
         <Column dataField="USERNAME" caption="Username" />
         <Column dataField="USERPASSWORD" caption="Password" />
         <Column dataField="USERFIRSTNAME" caption="First Name" />

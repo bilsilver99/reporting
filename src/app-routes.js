@@ -5,9 +5,10 @@ import {
   OperatorsPage,
   CompaniesPage,
   ReportGroupsPage,
+  ReportListPage,
 } from "./pages";
 import { withNavigationWatcher } from "./contexts/navigation";
-import path from "path-browserify";
+//import path from "path-browserify";
 
 const routes = [
   {
@@ -32,6 +33,7 @@ const routes = [
     element: CompaniesPage,
   },
   { path: "/reportGroups", element: ReportGroupsPage },
+  { path: "/reportList", element: ReportListPage },
 ];
 
 export default routes.map((route) => {

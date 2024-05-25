@@ -34,7 +34,7 @@ export const login = async (username, password) => {
         return {
           clientname: json.user_response.ReturnClientName,
           clientcode: json.user_response.ReturnClientCode,
-          authorized: "Y",
+          authorized: json.user_response.ReturnAuthorized,
           administrator: json.user_response.Returnadministrator,
           clientcompany: json.user_response.Returnedcompanynumber,
           returnOK: json.user_response.returnOK,

@@ -14,6 +14,7 @@ export async function signIn(email, password) {
       currentUser.companynumber = response.clientcompany;
       currentUser.avatarUrl =
         "https://js.devexpress.com/Demos/WidgetsGallery/JSDemos/images/employees/07.png";
+      currentUser.administrator = response.authorized;
       //console.log(currentUser);
     });
     if (thisOK === "1") {

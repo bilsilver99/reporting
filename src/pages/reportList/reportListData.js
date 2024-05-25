@@ -1,9 +1,11 @@
 import CustomStore from "devextreme/data/custom_store";
+import axios from "axios";
+
 function isNotEmpty(value) {
   return value !== undefined && value !== null && value !== "";
 }
 
-export const OperatorStore = (myClient) =>
+export const ReportListStore = (myClient) =>
   new CustomStore({
     key: "UNIQUEID",
     load: (loadOptions) => {
@@ -36,7 +38,7 @@ export const OperatorStore = (myClient) =>
           Parameters: params,
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/ReturnOperators`;
+      const url = `${process.env.REACT_APP_BASE_URL}/ReturnScriptList`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           //console.log("client " + myClient);
@@ -70,7 +72,7 @@ export const OperatorStore = (myClient) =>
           sentcompany: myClient,
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/updateOperators`;
+      const url = `${process.env.REACT_APP_BASE_URL}/UpdateScriptList`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {
@@ -99,7 +101,7 @@ export const OperatorStore = (myClient) =>
           ThisFunction: "delete",
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/updateOperators`;
+      const url = `${process.env.REACT_APP_BASE_URL}/UpdateScriptList`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {
@@ -129,7 +131,7 @@ export const OperatorStore = (myClient) =>
           keyvaluepair: values,
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/updateOperators`;
+      const url = `${process.env.REACT_APP_BASE_URL}/UpdateScriptList`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {
@@ -172,145 +174,96 @@ export const CompanyStore = () => {
     });
 };
 
-export const CompanyStorez = (myClient) =>
-  new CustomStore({
-    key: "UNIQUEID",
-    load: (loadOptions) => {
-      let params = "?";
-      [
-        "skip",
-        "take",
-        "requireTotalCount",
-        "requireGroupCount",
-        "sort",
-        "filter",
-        "totalSummary",
-        "group",
-        "groupSummary",
-      ].forEach((i) => {
-        if (i in loadOptions && isNotEmpty(loadOptions[i])) {
-          params += `${i}=${JSON.stringify(loadOptions[i])}&`;
-        }
-      });
+export const ReportGroupsStore = () => {
+  var myClient = 1;
+  var requestoptions = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json;",
+    },
+    body: JSON.stringify({
+      sentclientcode: myClient,
+    }),
+  };
+  const url = `${process.env.REACT_APP_BASE_URL}/ReturnReportgroups`;
+  return fetch(url, requestoptions)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((json) => {
+      console.log("Companies sql", json);
+      return json.user_response.bankq;
+    });
+};
 
-      params = params.slice(0, -1);
-      var requestoptions = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json;",
-        },
-        body: JSON.stringify({
-          sentcompany: myClient,
-          Parameters: params,
-        }),
-      };
-      const url = `${process.env.REACT_APP_BASE_URL}/ReturnCompaniesList`;
-      return fetch(url, requestoptions) // Request fish
-        .then((response) => {
-          //console.log("client " + myClient);
-          if (!response.ok) {
-            return {
-              companyname: "System did not respond",
-              returnaddress: " ",
-            };
-          }
-          return response.json();
-        })
-        .then((json) => {
-          console.log("types: ", json.user_response.bankq);
-          return {
-            data: json.user_response.bankq,
-            totalCount: json.user_response.totalCount,
-            key: json.user_response.keyname,
-          };
-        });
+export const UpdateScript = (key, values) => {
+  var requestoptions = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json;",
     },
-    insert: (values) => {
-      var requestoptions = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json;",
-        },
-        body: JSON.stringify({
-          ThisFunction: "insert",
-          keyvaluepair: values,
-          sentcompany: myClient,
-        }),
-      };
-      const url = `${process.env.REACT_APP_BASE_URL}/UpdateCompanies`;
-      return fetch(url, requestoptions) // Request fish
-        .then((response) => {
-          if (!response.ok) {
-            return {
-              companyname: "System did not respond",
-              returnaddress: " ",
-            };
-          }
-          return response.json();
-        })
-        .then((json) => {
-          return {};
-        });
+    body: JSON.stringify({
+      uniqueid: key,
+      value: values,
+    }),
+  };
+  const url = `${process.env.REACT_APP_BASE_URL}/UpdateScriptField`;
+  return fetch(url, requestoptions) // Request fish
+    .then((response) => {
+      if (!response.ok) {
+        return {
+          companyname: "System did not respond",
+          returnaddress: " ",
+        };
+      }
+      return response.json();
+    })
+    .then((json) => {
+      return {};
+    });
+};
+
+export const GetScript = (key) => {
+  var requestoptions = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json;",
     },
-    remove: (key) => {
-      //console.log(key);
-      //console.log(values);
-      var requestoptions = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json;",
-        },
-        body: JSON.stringify({
-          sentcompany: key,
-          ThisFunction: "delete",
-        }),
-      };
-      const url = `${process.env.REACT_APP_BASE_URL}/UpdateCompanies`;
-      return fetch(url, requestoptions) // Request fish
-        .then((response) => {
-          if (!response.ok) {
-            return {
-              companyname: "System did not respond",
-              returnaddress: " ",
-            };
-          }
-          return response.json();
-        })
-        .then((json) => {
-          return {};
-        });
-    },
-    update: (key, values) => {
-      console.log("key: ", key);
-      console.log("values: ", values);
-      var requestoptions = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json;",
-        },
-        body: JSON.stringify({
-          ThisFunction: "change",
-          sentcompany: key,
-          keyvaluepair: values,
-        }),
-      };
-      const url = `${process.env.REACT_APP_BASE_URL}/UpdateCompanies`;
-      return fetch(url, requestoptions) // Request fish
-        .then((response) => {
-          if (!response.ok) {
-            return {
-              companyname: "System did not respond",
-              returnaddress: " ",
-            };
-          }
-          return response.json();
-        })
-        .then((json) => {
-          return {};
-        });
-    },
-  });
+    body: JSON.stringify({
+      uniqueid: key,
+    }),
+  };
+  const url = `${process.env.REACT_APP_BASE_URL}/GetScriptRecord`;
+  return fetch(url, requestoptions)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((json) => {
+      //console.log("script sql", json.user_response.bankq.SCRIPT);
+      return json.user_response.bankq.SCRIPT;
+    });
+};
+
+export const ExecuteScript = async (script, selectedDb) => {
+  console.log("script results from ", selectedDb);
+  try {
+    const response = await axios.post("http://localhost:5000/execute-sql", {
+      db: selectedDb, // Adjust the database as needed
+      sql: script,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error executing the script", error);
+    throw error;
+  }
+};

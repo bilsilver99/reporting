@@ -19,11 +19,12 @@ import {
   ReportGroupsStore,
   UpdateScript,
   GetScript,
+  ExecuteScript,
 } from "./reportListData";
 import { Popup, FileUploader } from "devextreme-react";
+import { SelectBox } from "devextreme-react";
 import DataSource from "devextreme/data/data_source";
 import Button from "devextreme-react/button";
-import axios from "axios"; // Add axios for API calls
 
 const allowedPageSizes = [8, 12, 20];
 
@@ -37,7 +38,8 @@ const ReportListx = ({ companyCode }) => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [companyCodes, setCompanyCodes] = useState([]);
   const [reportGroups, setReportGroups] = useState([]);
-  const [scriptResults, setScriptResults] = useState(null); // To hold the script execution results
+  const [scriptResults, setScriptResults] = useState([]); // Initialize as an empty array
+  const [selectedDb, setSelectedDb] = useState("db1");
 
   const [events, setEvents] = useState([]);
   const logEvent = useCallback((eventName) => {
@@ -102,16 +104,16 @@ const ReportListx = ({ companyCode }) => {
   };
 
   const executeScript = async () => {
+    //console.log("currentRow", currentRow);
     if (currentRow !== null) {
       try {
         const scriptContent = await GetScript(currentRow);
-        const response = await axios.post("http://localhost:5000/execute-sql", {
-          db: "db1", // Adjust as needed
-          sql: scriptContent,
-        });
-        setScriptResults(response.data);
+        //console.log("scriptContent", scriptContent);
+        const result = await ExecuteScript(scriptContent, selectedDb); // Pass selectedDb to the function
+        setScriptResults(result); // Set the results to display in the grid
       } catch (error) {
         console.error("Error executing the script", error);
+        setScriptResults([]); // Set an empty array on error
       }
     }
   };
@@ -122,14 +124,11 @@ const ReportListx = ({ companyCode }) => {
 
   return (
     <div className="content-block dx-card responsive-paddings">
-      <style jsx>{`
-        .small-width {
-          width: 33% !important;
-        }
-        .blank-field {
-          height: 20px;
-        }
-      `}</style>
+      <SelectBox
+        items={["db1", "db2", "db3"]}
+        value={selectedDb}
+        onValueChanged={(e) => setSelectedDb(e.value)}
+      />
       <DataGrid
         dataSource={dataSource}
         keyExpr={"UNIQUEID"}
@@ -179,7 +178,7 @@ const ReportListx = ({ companyCode }) => {
                 stylingMode: "outlined",
                 inputAttr: {
                   style: { textAlign: "left", paddingTop: "0px" },
-                  maxLength: 7000,
+                  maxLength: 7000, // Set maxLength to 7000
                 },
               }}
             />
@@ -233,7 +232,7 @@ const ReportListx = ({ companyCode }) => {
         />
       </DataGrid>
 
-      {scriptResults && (
+      {scriptResults.length > 0 && (
         <DataGrid dataSource={scriptResults} showBorders={true}>
           {Object.keys(scriptResults[0] || {}).map((key) => (
             <Column key={key} dataField={key} caption={key} />
