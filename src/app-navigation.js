@@ -7,11 +7,7 @@ export const navigation = [
     tooltip: "home",
     auth: "X",
   },
-  {
-    text: " Company Information",
-    path: "/companyProfile",
-    auth: "Y",
-  },
+
   { text: "Operators", path: "/operators", auth: "Y" },
 
   { text: "Report Groups", path: "/reportGroups", auth: "Y" },
