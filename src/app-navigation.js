@@ -6,22 +6,30 @@ export const navigation = [
     path: "/home",
     tooltip: "home",
     auth: "X",
+    icon: "home",
   },
 
-  { text: "Operators", path: "/operators", auth: "Y" },
+  { text: "Operators", path: "/operators", auth: "Y", icon: "group" },
 
-  { text: "Report Groups", path: "/reportGroups", auth: "Y" },
-  { text: "Companies", path: "/companies", auth: "Y" },
+  {
+    text: "Report Groups",
+    path: "/reportGroups",
+    auth: "Y",
+    icon: "chart",
+  },
+  { text: "Companies", path: "/companies", auth: "Y", icon: "globe" },
   {
     text: "Report List Management",
     auth: "Y",
     path: "/reportList",
+    icon: "product",
   },
 
   {
-    text: "Reporting",
+    text: "ad hoc Reporting",
     auth: "X",
     path: "/reporting",
+    icon: "selectall",
   },
 ];
 
