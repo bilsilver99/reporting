@@ -11,9 +11,6 @@ import DataGrid, {
   Item,
   Form,
   Selection,
-  Toolbar,
-  ColumnChooser,
-  Export,
 } from "devextreme-react/data-grid";
 import { useAuth } from "../../contexts/auth";
 import {
@@ -29,14 +26,6 @@ import { Popup, FileUploader } from "devextreme-react";
 import { SelectBox } from "devextreme-react";
 import DataSource from "devextreme/data/data_source";
 import Button from "devextreme-react/button";
-import { exportDataGrid } from "devextreme/excel_exporter";
-import ExcelJS from "exceljs";
-import saveAs from "file-saver";
-import "./reportList.css"; // Make sure to import your CSS file
-
-function isNotEmpty(value) {
-  return value !== undefined && value !== null && value !== "";
-}
 
 const allowedPageSizes = [8, 12, 20];
 
@@ -111,6 +100,7 @@ const ReportListx = ({ companyCode }) => {
       reader.onload = async (event) => {
         const fileContent = event.target.result;
         try {
+          // Assuming UpdateScript updates the backend and doesn't have size constraints
           console.log(
             "Updating the SCRIPT field",
             fileContent.length,
@@ -140,26 +130,6 @@ const ReportListx = ({ companyCode }) => {
     setRefreshKey((prevKey) => prevKey + 1);
   };
 
-  const exportGridToExcel = () => {
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Main sheet");
-
-    exportDataGrid({
-      component: dataGridRef.current.instance,
-      worksheet: worksheet,
-      autoFilterEnabled: true,
-    }).then(() => {
-      workbook.xlsx.writeBuffer().then((buffer) => {
-        saveAs(
-          new Blob([buffer], { type: "application/octet-stream" }),
-          "DataGrid.xlsx"
-        );
-      });
-    });
-  };
-
-  const dataGridRef = React.useRef();
-
   if (!dataSource) {
     return <div>Loading...</div>;
   }
@@ -180,147 +150,6 @@ const ReportListx = ({ companyCode }) => {
     { value: "db3", description: "KineticPilot1" },
   ];
 
-  const subTableStore = (parentId) =>
-    new DataSource({
-      key: "UNIQUEID",
-      load: (loadOptions) => {
-        let params = "?";
-        [
-          "skip",
-          "take",
-          "requireTotalCount",
-          "requireGroupCount",
-          "sort",
-          "filter",
-          "totalSummary",
-          "group",
-          "groupSummary",
-        ].forEach((i) => {
-          if (i in loadOptions && isNotEmpty(loadOptions[i])) {
-            params += `${i}=${JSON.stringify(loadOptions[i])}&`;
-          }
-        });
-
-        params = params.slice(0, -1);
-        var requestoptions = {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json;",
-          },
-          body: JSON.stringify({
-            SentID: parentId,
-            Parameters: params,
-          }),
-        };
-        const url = `${process.env.REACT_APP_BASE_URL}/ReturnScriptFilterList`;
-        return fetch(url, requestoptions)
-          .then((response) => {
-            if (!response.ok) {
-              return {
-                companyname: "System did not respond",
-                returnaddress: " ",
-              };
-            }
-            return response.json();
-          })
-          .then((json) => {
-            console.log("types: ", json.user_response.bankq);
-            return {
-              data: json.user_response.bankq,
-              totalCount: json.user_response.totalCount,
-              key: json.user_response.keyname,
-            };
-          });
-      },
-      insert: (values) => {
-        console.log("values: ", values, "parentId", parentId);
-        var requestoptions = {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json;",
-          },
-          body: JSON.stringify({
-            ThisFunction: "insert",
-            keyvaluepair: values,
-            sentcompany: parentId,
-          }),
-        };
-        const url = `${process.env.REACT_APP_BASE_URL}/UpdateScriptFilterList`;
-        return fetch(url, requestoptions)
-          .then((response) => {
-            if (!response.ok) {
-              return {
-                companyname: "System did not respond",
-                returnaddress: " ",
-              };
-            }
-            return response.json();
-          })
-          .then((json) => {
-            return {};
-          });
-      },
-      remove: (key) => {
-        var requestoptions = {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json;",
-          },
-          body: JSON.stringify({
-            sentcompany: key,
-            ThisFunction: "delete",
-          }),
-        };
-        const url = `${process.env.REACT_APP_BASE_URL}/UpdateScriptFilterList`;
-        return fetch(url, requestoptions)
-          .then((response) => {
-            if (!response.ok) {
-              return {
-                companyname: "System did not respond",
-                returnaddress: " ",
-              };
-            }
-            return response.json();
-          })
-          .then((json) => {
-            return {};
-          });
-      },
-      update: (key, values) => {
-        console.log("key: ", key);
-        console.log("values: ", values);
-        var requestoptions = {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json;",
-          },
-          body: JSON.stringify({
-            ThisFunction: "change",
-            sentcompany: key,
-            keyvaluepair: values,
-          }),
-        };
-        const url = `${process.env.REACT_APP_BASE_URL}/UpdateScriptFilterList`;
-        return fetch(url, requestoptions)
-          .then((response) => {
-            if (!response.ok) {
-              return {
-                companyname: "System did not respond",
-                returnaddress: " ",
-              };
-            }
-            return response.json();
-          })
-          .then((json) => {
-            return {};
-          });
-      },
-    });
-
   return (
     <div className="content-block dx-card responsive-paddings">
       {scriptResults === "" && (
@@ -339,17 +168,17 @@ const ReportListx = ({ companyCode }) => {
             remoteOperations={false}
             key={refreshKey}
             onEditingStart={handleEditingStart}
-            // onInitNewRow={() => logEvent("InitNewRow")}
-            // onRowInserting={() => logEvent("RowInserting")}
-            // onRowInserted={() => logEvent("RowInserted")}
-            // onRowUpdating={() => logEvent("RowUpdating")}
-            // onRowUpdated={() => logEvent("RowUpdated")}
-            // onRowRemoving={() => logEvent("RowRemoving")}
-            // onRowRemoved={() => logEvent("RowRemoved")}
-            // onSaving={() => logEvent("Saving")}
-            // onSaved={() => logEvent("Saved")}
-            // onEditCanceling={() => logEvent("EditCanceling")}
-            // onEditCanceled={() => logEvent("EditCanceled")}
+            onInitNewRow={() => logEvent("InitNewRow")}
+            onRowInserting={() => logEvent("RowInserting")}
+            onRowInserted={() => logEvent("RowInserted")}
+            onRowUpdating={() => logEvent("RowUpdating")}
+            onRowUpdated={() => logEvent("RowUpdated")}
+            onRowRemoving={() => logEvent("RowRemoving")}
+            onRowRemoved={() => logEvent("RowRemoved")}
+            onSaving={() => logEvent("Saving")}
+            onSaved={() => logEvent("Saved")}
+            onEditCanceling={() => logEvent("EditCanceling")}
+            onEditCanceled={() => logEvent("EditCanceled")}
           >
             <Selection mode="single" />
             <FilterRow visible={showFilterRow} applyFilter={currentFilter} />
@@ -475,45 +304,13 @@ const ReportListx = ({ companyCode }) => {
 
       {scriptResults && (
         <>
-          <>
-            <div className="button-container">
-              <Button
-                text="Close"
-                onClick={ClearScriptResults}
-                width="20%"
-                type="default"
-              />
-              <Button
-                text="Export to Excel"
-                onClick={exportGridToExcel}
-                width="20%"
-                type="default"
-              />
-            </div>
-          </>
-          <DataGrid
-            ref={dataGridRef}
-            dataSource={scriptResults}
-            showBorders={true}
-            className="custom-header"
-            allowColumnReordering={true}
-            allowColumnResizing={true}
-          >
-            <ColumnChooser enabled={true} />
-            <Toolbar>
-              <Item name="columnChooserButton" />
-              {/* <Item location="after">
-                <Button
-                  text="Export to Excel"
-                  onClick={exportGridToExcel}
-                  width="100%"
-                  type="default"
-                />
-              </Item> */}
-            </Toolbar>
-            <FilterRow visible={showFilterRow} applyFilter={currentFilter} />
-            <HeaderFilter visible={showHeaderFilter} />
-            <SearchPanel visible={true} width={240} placeholder="Search..." />
+          <Button
+            text="Close"
+            onClick={ClearScriptResults}
+            width="100%"
+            type="default"
+          />
+          <DataGrid dataSource={scriptResults} showBorders={true}>
             {Object.keys(scriptResults[0] || {}).map((key) => (
               <Column key={key} dataField={key} caption={key} />
             ))}
