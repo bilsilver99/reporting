@@ -2,22 +2,22 @@ import React from "react";
 import "./home.css";
 import system from "../images/system.jpg";
 import scheduling from "../images/scheduling.jpg";
-import globe from "../images/globe.png";
+import globe from "../images/cer.png";
 //import logo from "../images/iron.webp";
 
 function Card() {
   return (
     <div className="card">
-      <div className="card-top">
+      {/* <div className="card-top">
         <h2>Reporting</h2>
       </div>
-      <p className="ParagraphSpace">Reporting Management.</p>
+      <p className="ParagraphSpace">Reporting Management.</p> */}
       <img
         className="systempic"
-        src={system}
+        src={globe}
         alt="CER Reporting Solutions"
-        height="200"
-        width="200"
+        height="800"
+        width="1500"
       />
     </div>
   );
