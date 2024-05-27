@@ -16,7 +16,7 @@ function Card() {
         className="systempic"
         src={globe}
         alt="CER Reporting Solutions"
-        height="800"
+        height="750"
         width="1500"
       />
     </div>

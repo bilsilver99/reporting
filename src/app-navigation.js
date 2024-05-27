@@ -24,10 +24,16 @@ export const navigation = [
     path: "/reportList",
     icon: "product",
   },
+  {
+    text: "Reporting",
+    auth: "N",
+    path: "/userReporting",
+    icon: "product",
+  },
 
   {
     text: "ad hoc Reporting",
-    auth: "X",
+    auth: "Y",
     path: "/reporting",
     icon: "selectall",
   },
