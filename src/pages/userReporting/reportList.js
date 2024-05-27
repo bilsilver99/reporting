@@ -369,8 +369,8 @@ const ReportListx = ({ companyCode }) => {
             <Editing
               mode="popup"
               allowUpdating={true}
-              allowAdding={true}
-              allowDeleting={true}
+              // allowAdding={true}
+              // allowDeleting={true}
             >
               <Popup
                 title="Edit Report"
