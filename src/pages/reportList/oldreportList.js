@@ -11,6 +11,8 @@ import DataGrid, {
   Item,
   Form,
   Selection,
+  ColumnChooser,
+  Toolbar,
 } from "devextreme-react/data-grid";
 import { useAuth } from "../../contexts/auth";
 import {
@@ -26,6 +28,20 @@ import { Popup, FileUploader } from "devextreme-react";
 import { SelectBox } from "devextreme-react";
 import DataSource from "devextreme/data/data_source";
 import Button from "devextreme-react/button";
+import { exportDataGrid } from "devextreme/excel_exporter";
+import ExcelJS from "exceljs";
+import saveAs from "file-saver";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import "./YourStyles.css"; // Make sure to import your CSS file
 
 const allowedPageSizes = [8, 12, 20];
 
@@ -41,8 +57,8 @@ const ReportListx = ({ companyCode }) => {
   const [reportGroups, setReportGroups] = useState([]);
   const [scriptResults, setScriptResults] = useState("");
   const [selectedDb, setSelectedDb] = useState("db3");
-
   const [subTableData, setSubTableData] = useState([]); // Subtable data
+  const [showChart, setShowChart] = useState(false); // State to control chart visibility
 
   const [events, setEvents] = useState([]);
   const logEvent = useCallback((eventName) => {
@@ -100,7 +116,6 @@ const ReportListx = ({ companyCode }) => {
       reader.onload = async (event) => {
         const fileContent = event.target.result;
         try {
-          // Assuming UpdateScript updates the backend and doesn't have size constraints
           console.log(
             "Updating the SCRIPT field",
             fileContent.length,
@@ -130,6 +145,26 @@ const ReportListx = ({ companyCode }) => {
     setRefreshKey((prevKey) => prevKey + 1);
   };
 
+  const exportGridToExcel = () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Main sheet");
+
+    exportDataGrid({
+      component: dataGridRef.current.instance,
+      worksheet: worksheet,
+      autoFilterEnabled: true,
+    }).then(() => {
+      workbook.xlsx.writeBuffer().then((buffer) => {
+        saveAs(
+          new Blob([buffer], { type: "application/octet-stream" }),
+          "DataGrid.xlsx"
+        );
+      });
+    });
+  };
+
+  const dataGridRef = React.useRef();
+
   if (!dataSource) {
     return <div>Loading...</div>;
   }
@@ -149,6 +184,10 @@ const ReportListx = ({ companyCode }) => {
     { value: "db2", description: "Steel 057" },
     { value: "db3", description: "KineticPilot1" },
   ];
+
+  const toggleChart = () => {
+    setShowChart(!showChart);
+  };
 
   return (
     <div className="content-block dx-card responsive-paddings">
@@ -184,6 +223,18 @@ const ReportListx = ({ companyCode }) => {
             <FilterRow visible={showFilterRow} applyFilter={currentFilter} />
             <HeaderFilter visible={showHeaderFilter} />
             <SearchPanel visible={true} width={240} placeholder="Search..." />
+            <ColumnChooser enabled={true} />
+            <Toolbar>
+              <Item name="columnChooserButton" />
+              <Item location="after">
+                <Button
+                  text="Export to Excel"
+                  onClick={exportGridToExcel}
+                  width="100%"
+                  type="default"
+                />
+              </Item>
+            </Toolbar>
             <Paging enabled={true} />
             <Editing
               mode="popup"
@@ -291,7 +342,7 @@ const ReportListx = ({ companyCode }) => {
               dataField="ACTIVE"
               caption="Active"
               dataType={"boolean"}
-              editorType="dxCheckBox"
+              editorType={"dxCheckBox"}
             />
             <Paging defaultPageSize={8} />
             <Pager
@@ -304,17 +355,67 @@ const ReportListx = ({ companyCode }) => {
 
       {scriptResults && (
         <>
-          <Button
-            text="Close"
-            onClick={ClearScriptResults}
-            width="100%"
-            type="default"
-          />
-          <DataGrid dataSource={scriptResults} showBorders={true}>
+          <div className="button-container">
+            <Button
+              text="Close"
+              onClick={ClearScriptResults}
+              width="20%"
+              type="default"
+            />
+            <Button
+              text="Export to Excel"
+              onClick={exportGridToExcel}
+              width="20%"
+              type="default"
+            />
+            <Button
+              text="Show/Hide Chart"
+              onClick={toggleChart}
+              width="20%"
+              type="default"
+            />
+          </div>
+          <DataGrid
+            ref={dataGridRef}
+            dataSource={scriptResults}
+            showBorders={true}
+            className="custom-header"
+            allowColumnResizing={true}
+          >
+            <ColumnChooser enabled={true} />
+            <Toolbar>
+              <Item name="columnChooserButton" />
+            </Toolbar>
+            <FilterRow visible={showFilterRow} applyFilter={currentFilter} />
+            <HeaderFilter visible={showHeaderFilter} />
+            <SearchPanel visible={true} width={240} placeholder="Search..." />
             {Object.keys(scriptResults[0] || {}).map((key) => (
-              <Column key={key} dataField={key} caption={key} />
+              <Column
+                key={key}
+                dataField={key}
+                caption={key}
+                allowResizing={true}
+              />
             ))}
           </DataGrid>
+
+          {showChart && (
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart data={scriptResults}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="UNIQUEID" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                {Object.keys(scriptResults[0] || {}).map(
+                  (key) =>
+                    key !== "UNIQUEID" && (
+                      <Bar key={key} dataKey={key} fill="#8884d8" />
+                    )
+                )}
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </>
       )}
     </div>

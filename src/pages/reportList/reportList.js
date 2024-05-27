@@ -26,13 +26,23 @@ import {
   SubTableDataStore,
 } from "./reportListData";
 import { Popup, FileUploader } from "devextreme-react";
-import { SelectBox } from "devextreme-react";
+import { SelectBox, TagBox } from "devextreme-react";
 import DataSource from "devextreme/data/data_source";
 import Button from "devextreme-react/button";
 import { exportDataGrid } from "devextreme/excel_exporter";
 import ExcelJS from "exceljs";
 import saveAs from "file-saver";
 import "./reportList.css"; // Make sure to import your CSS file
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
 function isNotEmpty(value) {
   return value !== undefined && value !== null && value !== "";
@@ -54,6 +64,9 @@ const ReportListx = ({ companyCode }) => {
   const [selectedDb, setSelectedDb] = useState("db3");
 
   const [subTableData, setSubTableData] = useState([]); // Subtable data
+  const [showChart, setShowChart] = useState(false); // State to control chart visibility
+  const [xKey, setXKey] = useState("");
+  const [yKeys, setYKeys] = useState([]);
 
   const [events, setEvents] = useState([]);
   const logEvent = useCallback((eventName) => {
@@ -65,6 +78,8 @@ const ReportListx = ({ companyCode }) => {
 
   const ClearScriptResults = () => {
     setScriptResults("");
+    setXKey("");
+    setYKeys([]);
   };
 
   useEffect(() => {
@@ -132,6 +147,8 @@ const ReportListx = ({ companyCode }) => {
         const scriptContent = await GetScript(currentRow);
         const result = await ExecuteScript(scriptContent, selectedDb);
         setScriptResults(result);
+        setXKey(Object.keys(result[0] || [])[0]); // Set default X key
+        setYKeys([Object.keys(result[0] || [])[1]]); // Set default Y keys
       } catch (error) {
         console.error("Error executing the script", error);
         setScriptResults([]); // Set an empty array on error
@@ -321,6 +338,10 @@ const ReportListx = ({ companyCode }) => {
       },
     });
 
+  const toggleChart = () => {
+    setShowChart(!showChart);
+  };
+
   return (
     <div className="content-block dx-card responsive-paddings">
       {scriptResults === "" && (
@@ -339,17 +360,6 @@ const ReportListx = ({ companyCode }) => {
             remoteOperations={false}
             key={refreshKey}
             onEditingStart={handleEditingStart}
-            // onInitNewRow={() => logEvent("InitNewRow")}
-            // onRowInserting={() => logEvent("RowInserting")}
-            // onRowInserted={() => logEvent("RowInserted")}
-            // onRowUpdating={() => logEvent("RowUpdating")}
-            // onRowUpdated={() => logEvent("RowUpdated")}
-            // onRowRemoving={() => logEvent("RowRemoving")}
-            // onRowRemoved={() => logEvent("RowRemoved")}
-            // onSaving={() => logEvent("Saving")}
-            // onSaved={() => logEvent("Saved")}
-            // onEditCanceling={() => logEvent("EditCanceling")}
-            // onEditCanceled={() => logEvent("EditCanceled")}
           >
             <Selection mode="single" />
             <FilterRow visible={showFilterRow} applyFilter={currentFilter} />
@@ -489,35 +499,73 @@ const ReportListx = ({ companyCode }) => {
                 width="20%"
                 type="default"
               />
+              <Button
+                text="Show/Hide Chart"
+                onClick={toggleChart}
+                width="20%"
+                type="default"
+              />
             </div>
           </>
-          <DataGrid
-            ref={dataGridRef}
-            dataSource={scriptResults}
-            showBorders={true}
-            className="custom-header"
-            allowColumnReordering={true}
-            allowColumnResizing={true}
-          >
-            <ColumnChooser enabled={true} />
-            <Toolbar>
-              <Item name="columnChooserButton" />
-              {/* <Item location="after">
-                <Button
-                  text="Export to Excel"
-                  onClick={exportGridToExcel}
-                  width="100%"
-                  type="default"
-                />
-              </Item> */}
-            </Toolbar>
-            <FilterRow visible={showFilterRow} applyFilter={currentFilter} />
-            <HeaderFilter visible={showHeaderFilter} />
-            <SearchPanel visible={true} width={240} placeholder="Search..." />
-            {Object.keys(scriptResults[0] || {}).map((key) => (
-              <Column key={key} dataField={key} caption={key} />
-            ))}
-          </DataGrid>
+          {!showChart && (
+            <DataGrid
+              ref={dataGridRef}
+              dataSource={scriptResults}
+              showBorders={true}
+              className="custom-header"
+              allowColumnReordering={true}
+              allowColumnResizing={true}
+            >
+              <ColumnChooser enabled={true} />
+              <Toolbar>
+                <Item name="columnChooserButton" />
+              </Toolbar>
+              <FilterRow visible={showFilterRow} applyFilter={currentFilter} />
+              <HeaderFilter visible={showHeaderFilter} />
+              <SearchPanel visible={true} width={240} placeholder="Search..." />
+              {Object.keys(scriptResults[0] || {}).map((key) => (
+                <Column key={key} dataField={key} caption={key} />
+              ))}
+            </DataGrid>
+          )}
+          {showChart && (
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <SelectBox
+                items={Object.keys(scriptResults[0] || {}).map((key) => ({
+                  value: key,
+                  label: key,
+                }))}
+                value={xKey}
+                onValueChanged={(e) => setXKey(e.value)}
+                placeholder="Select X Axis Key"
+              />
+              <TagBox
+                items={Object.keys(scriptResults[0] || {}).map((key) => ({
+                  value: key,
+                  label: key,
+                }))}
+                value={yKeys}
+                onValueChanged={(e) => setYKeys(e.value)}
+                placeholder="Select Y Axis Keys"
+                showSelectionControls={true}
+                applyValueMode="useButtons"
+                multiline={false}
+              />
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={scriptResults}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey={xKey} />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  {Array.isArray(yKeys) &&
+                    yKeys.map((key) => (
+                      <Bar key={key} dataKey={key} fill="#8884d8" />
+                    ))}
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </>
       )}
     </div>
