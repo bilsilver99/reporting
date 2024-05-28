@@ -5,7 +5,7 @@ function isNotEmpty(value) {
   return value !== undefined && value !== null && value !== "";
 }
 
-export const ReportListStore = (myClient) =>
+export const ReportListStore = (myClient, administrator) =>
   new CustomStore({
     key: "UNIQUEID",
     load: (loadOptions) => {
@@ -35,6 +35,7 @@ export const ReportListStore = (myClient) =>
         },
         body: JSON.stringify({
           sentcompany: myClient,
+          sentadmin: administrator,
           Parameters: params,
         }),
       };

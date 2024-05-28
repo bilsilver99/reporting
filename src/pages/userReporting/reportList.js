@@ -50,7 +50,7 @@ function isNotEmpty(value) {
 
 const allowedPageSizes = [8, 12, 20];
 
-const ReportListx = ({ companyCode }) => {
+const ReportListx = ({ companyCode, administrator }) => {
   const [dataSource, setDataSource] = useState(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [currentRow, setCurrentRow] = useState(null);
@@ -84,7 +84,13 @@ const ReportListx = ({ companyCode }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const store = ReportListStore(companyCode);
+      console.log(
+        "companyCode: ",
+        companyCode,
+        "administrator: ",
+        administrator
+      );
+      const store = ReportListStore(companyCode, administrator);
       const dataSource = new DataSource(store);
       setDataSource(dataSource);
 
@@ -369,8 +375,8 @@ const ReportListx = ({ companyCode }) => {
             <Editing
               mode="popup"
               allowUpdating={true}
-              // allowAdding={true}
-              // allowDeleting={true}
+              allowAdding={administrator === "Y"}
+              allowDeleting={administrator === "Y"}
             >
               <Popup
                 title="Edit Report"
@@ -444,7 +450,7 @@ const ReportListx = ({ companyCode }) => {
                     type="default"
                   />
                 </Item>
-                <Item dataField="ACTIVE" colSpan={2} />
+                {/* <Item dataField="ACTIVE" colSpan={2} /> */}
               </Form>
             </Editing>
             <Column dataField="UNIQUEID" allowEditing={false} visible={false} />
@@ -467,13 +473,16 @@ const ReportListx = ({ companyCode }) => {
               />
             </Column>
             <Column dataField="DESCRIPTION" caption="Description" />
-            <Column dataField="SCRIPT" caption="Script" />
-            <Column
+            {administrator === "Y" && (
+              <Column dataField="SCRIPT" caption="Script" />
+            )}
+
+            {/* <Column
               dataField="ACTIVE"
               caption="Active"
               dataType={"boolean"}
               editorType="dxCheckBox"
-            />
+            /> */}
             <Paging defaultPageSize={8} />
             <Pager
               showPageSizeSelector={true}
@@ -574,5 +583,11 @@ const ReportListx = ({ companyCode }) => {
 
 export default function ReportList() {
   const { user } = useAuth();
-  return <ReportListx companyCode={user.companyCode} />;
+  console.log("user: ", { user });
+  return (
+    <ReportListx
+      companyCode={user.companynumber}
+      administrator={user.administrator}
+    />
+  );
 }

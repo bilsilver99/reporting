@@ -19,14 +19,8 @@ export const navigation = [
   },
   { text: "Companies", path: "/companies", auth: "Y", icon: "globe" },
   {
-    text: "Report List Management",
-    auth: "Y",
-    path: "/reportList",
-    icon: "product",
-  },
-  {
     text: "Reporting",
-    auth: "N",
+    auth: "X",
     path: "/userReporting",
     icon: "product",
   },
