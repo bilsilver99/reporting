@@ -1,27 +1,70 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+
+//
 import DataGrid, {
   Column,
-  Paging,
-  Pager,
   Editing,
+  Popup,
+  Paging,
+  Lookup,
+  Form,
+  Pager,
   FilterRow,
   HeaderFilter,
+  Search,
   SearchPanel,
-  Lookup,
+  MasterDetail,
 } from "devextreme-react/data-grid";
+import { Item } from "devextreme-react/form";
+import "devextreme-react/text-area";
+import "devextreme/data/data_source";
 import { useAuth } from "../../contexts/auth";
+import "./app.scss";
+
+import { Button } from "devextreme-react/button";
+import "whatwg-fetch";
+
 import { OperatorStore, CompanyStore } from "./operatordata";
 
-const allowedPageSizes = [8, 12, 20];
+let pageoption = 90;
 
-const Operatorsx = ({ companyCode }) => {
+//const allowedPageSizes = [8, 12, 24];
+
+//let pageoption = 90;
+
+function Operatorsx({ companyCode }) {
+  const { user } = useAuth();
+
+  ////////////////////////////////
   const [operatorStore, setOperatorStore] = useState(null);
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [currentRow, setCurrentRow] = useState(0);
-  const [showFilterRow, setShowFilterRow] = useState(true);
-  const [showHeaderFilter, setShowHeaderFilter] = useState(true);
+
   const [currentFilter, setCurrentFilter] = useState("auto");
   const [companyCodes, setCompanyCodes] = useState([]);
+
+  /////////////////////////////////
+
+  const [currentRow, setCurrentRow] = useState(0);
+  const [filterValue, setFilterValue] = useState("90");
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [myClient, setMyClientcode] = useState(user.thisClientcode);
+
+  //const companyCode,SentCompanyCode]=useState(1)
+
+  const [showFilterRow, setShowFilterRow] = useState(true);
+  const [showHeaderFilter, setShowHeaderFilter] = useState(true);
+  //const [currentFilter, setCurrentFilter] = useState(applyFilterTypes[0].key);
+
+  const [currentID, setCurrentID] = useState(0);
+  const [currentStock, setCurrentStock] = useState("");
+  const [rowToBeEdited, setRowToBeEdited] = useState(0);
+  //const [refreshKey, setRefreshKey] = useState(props.sharedValue);
+  const [buildMonthly, setBuildMonthly] = useState(false);
+
+  const handleRowUpdating = (e) => {
+    const { oldData, newData } = e;
+    // Update logic here, e.g., call an API to update the data
+    // Refresh the DataGrid's data source if necessary
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,43 +93,69 @@ const Operatorsx = ({ companyCode }) => {
     fetchData();
   }, [companyCode]);
 
-  const handleSelectionChanged = (e) => {
-    setSelectedRowKeys(e.selectedRowKeys);
-    if (e.selectedRowKeys.length > 0) {
-      setCurrentRow(e.selectedRowKeys[0]);
-    }
+  const handleEditingStart = (e) => {
+    console.log("editing start", e);
+    setRowToBeEdited(e.data.UNIQUEID);
+    setCurrentID(e.data.UNIQUEID);
+    setCurrentStock(e.data.INVESTMENTNAME);
   };
 
-  if (!operatorStore || companyCodes.length === 0) {
-    return <div>Loading...</div>;
-  }
+  // const refreshData = () => {
+  //   setRefreshKey((oldKey) => oldKey + 1);
+  // };
 
+  // const BuildMonthlyFlag = () => {
+  //   setBuildMonthly(true);
+  // };
+  // const handleMappingUpdated = () => {
+  //   setBuildMonthly(false);
+  //   // Do something with the value, like updating the state
+  // };
   return (
-    <div className="content-block dx-card responsive-paddings">
+    <div className="content-block2 dx-card ">
+      <p> </p>
       <DataGrid
+        id="maindatagrid"
         dataSource={operatorStore}
-        showBorders={true}
+        keyExpr="UNIQUEID"
+        //key={refreshKey}
+        showBorders={false}
         remoteOperations={false}
-        onSelectionChanged={handleSelectionChanged}
+        width={"100%"}
+        columnAutoWidth={true}
+        //height={"auto"}
+        onEditingStart={handleEditingStart}
+        onRowUpdating={handleRowUpdating}
       >
-        <FilterRow visible={showFilterRow} applyFilter={currentFilter} />
         <HeaderFilter visible={showHeaderFilter} />
-        <SearchPanel visible={true} width={240} placeholder="Search..." />
+        <SearchPanel visible={false} width={240} placeholder="Search..." />
         <Paging enabled={true} />
+
         <Editing
-          mode="cell"
+          mode="popup"
           allowUpdating={true}
           allowAdding={true}
           allowDeleting={true}
-        />
-        <Column dataField="UNIQUEID" allowEditing={false} visible={false} />
-        <Column dataField="COMPANYNUMBER" caption="Company">
-          <Lookup
-            dataSource={companyCodes}
-            valueExpr="COMNUMBER"
-            displayExpr="COMNAME"
+        >
+          <Popup
+            title="Operator Info"
+            showTitle={true}
+            width={"100%"}
+            height={900}
           />
-        </Column>
+          <Form colCount={4}>
+            <Item itemType="group" colCount={4} colSpan={2} showBorders={true}>
+              <Item dataField="USERNAME" />
+              <Item dataField="USERPASSWORD" />
+              <Item dataField="USERFIRSTNAME" />
+              <Item dataField="USERLASTNAME" />
+              <Item dataField="EMAILADDRESS" />
+              <Item dataField="ACTIVE" />
+              <Item dataField="INTERNAL" />
+              <Item dataField="ADMINISTRATOR" />
+            </Item>
+          </Form>
+        </Editing>
         <Column dataField="USERNAME" caption="Username" />
         <Column dataField="USERPASSWORD" caption="Password" />
         <Column dataField="USERFIRSTNAME" caption="First Name" />
@@ -110,15 +179,12 @@ const Operatorsx = ({ companyCode }) => {
           dataType={"boolean"}
           editorType="dxCheckBox"
         />
-        <Paging defaultPageSize={8} />
-        <Pager
-          showPageSizeSelector={true}
-          allowedPageSizes={allowedPageSizes}
-        />
       </DataGrid>
     </div>
   );
-};
+}
+
+//export default ClientInvestments;
 
 export default function Operators() {
   const { user } = useAuth();

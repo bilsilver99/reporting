@@ -1,7 +1,7 @@
 import {
   HomePage,
   CompanyProfilePage,
-  ReportingPage,
+  // ReportingPage,
   OperatorsPage,
   CompaniesPage,
   ReportGroupsPage,
@@ -12,10 +12,10 @@ import { withNavigationWatcher } from "./contexts/navigation";
 //import path from "path-browserify";
 
 const routes = [
-  {
-    path: "/reporting",
-    element: ReportingPage,
-  },
+  // {
+  //   path: "/reporting",
+  //   element: ReportingPage,
+  // },
   {
     path: "/companyProfile",
     element: CompanyProfilePage,
