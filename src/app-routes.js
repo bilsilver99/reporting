@@ -7,6 +7,7 @@ import {
   ReportGroupsPage,
   ReportListPage,
   UserReportingPage,
+  DataBaseNamesPage,
 } from "./pages";
 import { withNavigationWatcher } from "./contexts/navigation";
 //import path from "path-browserify";
@@ -19,6 +20,10 @@ const routes = [
   {
     path: "/companyProfile",
     element: CompanyProfilePage,
+  },
+  {
+    path: "/databaseNames",
+    element: DataBaseNamesPage,
   },
   {
     path: "/operators",

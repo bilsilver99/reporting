@@ -62,6 +62,7 @@ const ReportListx = ({ companyCode, administrator }) => {
   const [reportGroups, setReportGroups] = useState([]);
   const [scriptResults, setScriptResults] = useState("");
   const [selectedDb, setSelectedDb] = useState("db3");
+  const [selectedCompanyCode, setSelectedCompanyCode] = useState("");
 
   const [subTableData, setSubTableData] = useState([]); // Subtable data
   const [showChart, setShowChart] = useState(false); // State to control chart visibility
@@ -84,12 +85,6 @@ const ReportListx = ({ companyCode, administrator }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log(
-        "companyCode: ",
-        companyCode,
-        "administrator: ",
-        administrator
-      );
       const store = ReportListStore(companyCode, administrator);
       const dataSource = new DataSource(store);
       setDataSource(dataSource);
@@ -359,6 +354,13 @@ const ReportListx = ({ companyCode, administrator }) => {
             displayExpr="description"
             valueExpr="value"
           />
+          <SelectBox
+            items={companyCode}
+            value={selectedCompanyCode}
+            onValueChanged={(e) => setSelectedCompanyCode(e.value)}
+            displayExpr="Company"
+            valueExpr="value"
+          />
           <DataGrid
             dataSource={dataSource}
             keyExpr={"UNIQUEID"}
@@ -385,7 +387,7 @@ const ReportListx = ({ companyCode, administrator }) => {
                 height={525}
               />
               <Form colCount={2}>
-                <Item dataField="COMPANYNUMBER" />
+                {/* <Item dataField="COMPANYNUMBER" /> */}
                 <Item dataField="GROUPCODE" />
                 <Item dataField="DESCRIPTION" colSpan={2} />
                 <Item
@@ -454,7 +456,7 @@ const ReportListx = ({ companyCode, administrator }) => {
               </Form>
             </Editing>
             <Column dataField="UNIQUEID" allowEditing={false} visible={false} />
-            <Column
+            {/* <Column
               dataField="COMPANYNUMBER"
               caption="Company"
               allowEditing={true}
@@ -464,7 +466,7 @@ const ReportListx = ({ companyCode, administrator }) => {
                 valueExpr="COMNUMBER"
                 displayExpr="COMNAME"
               />
-            </Column>
+            </Column> */}
             <Column dataField="GROUPCODE" caption="Group Code">
               <Lookup
                 dataSource={reportGroups}

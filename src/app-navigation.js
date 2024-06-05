@@ -8,6 +8,7 @@ export const navigation = [
     auth: "X",
     icon: "home",
   },
+  { text: "Database Names", path: "/databaseNames", auth: "Y", icon: "group" },
 
   { text: "Operators", path: "/operators", auth: "Y", icon: "group" },
 
