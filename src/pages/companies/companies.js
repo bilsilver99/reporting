@@ -63,6 +63,7 @@ const Operatorsx = ({ companyCode }) => {
         key={refreshKey} // This key will force a refresh when it changes
         onSelectionChanged={handleSelectionChanged}
         //onEditingStart={handleEditingStart}
+        width={"60%"}
       >
         <FilterRow visible={showFilterRow} applyFilter={currentFilter} />
         <HeaderFilter visible={showHeaderFilter} />
@@ -84,6 +85,12 @@ const Operatorsx = ({ companyCode }) => {
         <Column
           dataField="ACTIVE"
           caption="Active"
+          dataType={"boolean"}
+          editorType="dxCheckBox"
+        />
+        <Column
+          dataField="STEEL"
+          caption="Steel"
           dataType={"boolean"}
           editorType="dxCheckBox"
         />

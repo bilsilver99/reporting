@@ -126,11 +126,11 @@ const ReportListx = ({ companyCode }) => {
       reader.onload = async (event) => {
         const fileContent = event.target.result;
         try {
-          console.log(
-            "Updating the SCRIPT field",
-            fileContent.length,
-            fileContent
-          );
+          // console.log(
+          //   "Updating the SCRIPT field",
+          //   fileContent.length,
+          //   fileContent
+          // );
           await UpdateScript(currentRow, fileContent);
           setRefreshKey((prevKey) => prevKey + 1);
         } catch (error) {
@@ -242,7 +242,7 @@ const ReportListx = ({ companyCode }) => {
             return response.json();
           })
           .then((json) => {
-            console.log("types: ", json.user_response.bankq);
+            //console.log("types: ", json.user_response.bankq);
             return {
               data: json.user_response.bankq,
               totalCount: json.user_response.totalCount,
@@ -251,7 +251,7 @@ const ReportListx = ({ companyCode }) => {
           });
       },
       insert: (values) => {
-        console.log("values: ", values, "parentId", parentId);
+        //console.log("values: ", values, "parentId", parentId);
         var requestoptions = {
           method: "POST",
           headers: {
@@ -307,8 +307,8 @@ const ReportListx = ({ companyCode }) => {
           });
       },
       update: (key, values) => {
-        console.log("key: ", key);
-        console.log("values: ", values);
+        // console.log("key: ", key);
+        // console.log("values: ", values);
         var requestoptions = {
           method: "POST",
           headers: {

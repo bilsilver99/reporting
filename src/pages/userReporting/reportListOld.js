@@ -15,7 +15,6 @@ import DataGrid, {
   ColumnChooser,
   Export,
 } from "devextreme-react/data-grid";
-import { EmptyItem, SimpleItem } from "devextreme-react/form";
 import { useAuth } from "../../contexts/auth";
 import {
   ReportListStore,
@@ -144,7 +143,6 @@ const ReportListx = ({ companyCode, administrator }) => {
 
   const handleEditingStart = (e) => {
     setCurrentRow(e.data.UNIQUEID);
-    console.log("Current Row", e.data.UNIQUEID);
     fetchSubTableData(e.data.UNIQUEID);
   };
 
@@ -165,24 +163,21 @@ const ReportListx = ({ companyCode, administrator }) => {
     }
   };
 
-  const handleParametersUpload = async (e) => {
-    const file = e.value[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const fileContent = event.target.result;
-        try {
-          const parameters = JSON.parse(fileContent);
-          setScriptParameters(parameters);
-        } catch (error) {
-          console.error("Error parsing parameters file", error);
-        }
-      };
-      reader.readAsText(file);
-    }
-  };
-
-  const [scriptParameters, setScriptParameters] = useState({});
+  // const executeScript = async () => {
+  //   if (currentRow !== null) {
+  //     try {
+  //       const scriptContent = await GetScript(currentRow);
+  //       const result = await ExecuteScript(scriptContent, selectedDb);
+  //       setScriptResults(result);
+  //       setXKey(Object.keys(result[0] || [])[0]); // Set default X key
+  //       setYKeys([Object.keys(result[0] || [])[1]]); // Set default Y keys
+  //     } catch (error) {
+  //       console.error("Error executing the script", error);
+  //       setScriptResults([]); // Set an empty array on error
+  //     }
+  //   }
+  //   setRefreshKey((prevKey) => prevKey + 1);
+  // };
 
   const executeScript = async (params = {}) => {
     const { row = currentRow, db = selectedDb, refresh = true } = params;
@@ -190,8 +185,7 @@ const ReportListx = ({ companyCode, administrator }) => {
     if (row !== null) {
       try {
         const scriptContent = await GetScript(row);
-        const updatedScript = injectParameters(scriptContent, scriptParameters);
-        const result = await ExecuteScript(updatedScript, db);
+        const result = await ExecuteScript(scriptContent, db);
         setScriptResults(result);
         setXKey(Object.keys(result[0] || [])[0]); // Set default X key
         setYKeys([Object.keys(result[0] || [])[1]]); // Set default Y keys
@@ -204,15 +198,6 @@ const ReportListx = ({ companyCode, administrator }) => {
     if (refresh) {
       setRefreshKey((prevKey) => prevKey + 1);
     }
-  };
-
-  const injectParameters = (script, parameters) => {
-    let updatedScript = script;
-    Object.keys(parameters).forEach((key) => {
-      const regex = new RegExp(`@${key}`, "g");
-      updatedScript = updatedScript.replace(regex, `'${parameters[key]}'`);
-    });
-    return updatedScript;
   };
 
   const exportGridToExcel = () => {
@@ -241,7 +226,7 @@ const ReportListx = ({ companyCode, administrator }) => {
 
   const fetchSubTableData = async (uniqueId) => {
     try {
-      const data = await SubTableDataStore(uniqueId, currentRow);
+      const data = await SubTableDataStore(uniqueId);
       setSubTableData(data);
     } catch (error) {
       console.error("Error fetching subtable data", error);
@@ -262,10 +247,6 @@ const ReportListx = ({ companyCode, administrator }) => {
   const setCompanyCode = (e) => {
     setSelectedCompanyCode(e.value);
     setRefreshKey((prevKey) => prevKey + 1);
-  };
-
-  const handleSubTableRowInserting = (e) => {
-    // e.data.SCRIPTFILEID = currentRow;
   };
 
   return (
@@ -328,8 +309,7 @@ const ReportListx = ({ companyCode, administrator }) => {
                 <Item dataField="GROUPCODE" />
                 <Item dataField="DESCRIPTION" />
                 <Item dataField="STEEL" visible={true} dataType={"boolean"} />
-                {/* <Item></Item> */}
-                <EmptyItem />
+                <Item></Item>
                 <Item
                   colSpan={2}
                   dataField="SCRIPT"
@@ -346,9 +326,8 @@ const ReportListx = ({ companyCode, administrator }) => {
                 <Item colSpan={2}>
                   <DataGrid
                     dataSource={subTableData}
-                    keyExpr={"UNIQUEID"}
+                    keyExpr={"UniqueID"}
                     showBorders={true}
-                    onRowInserting={handleSubTableRowInserting}
                   >
                     <Editing
                       mode="popup"
@@ -383,15 +362,6 @@ const ReportListx = ({ companyCode, administrator }) => {
                     accept=".sql"
                     uploadMode="useForm"
                     onValueChanged={handleFileUpload}
-                  />
-                </Item>
-                <Item colSpan={4}>
-                  <FileUploader
-                    selectButtonText="Select Parameters File"
-                    labelText=""
-                    accept=".json"
-                    uploadMode="useForm"
-                    onValueChanged={handleParametersUpload}
                   />
                 </Item>
                 <Item colSpan={1}>

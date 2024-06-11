@@ -5,7 +5,7 @@ import {
   OperatorsPage,
   CompaniesPage,
   ReportGroupsPage,
-  ReportListPage,
+  //ReportListPage,
   UserReportingPage,
   DataBaseNamesPage,
 } from "./pages";
@@ -39,7 +39,7 @@ const routes = [
     element: CompaniesPage,
   },
   { path: "/reportGroups", element: ReportGroupsPage },
-  { path: "/reportList", element: ReportListPage },
+  //{ path: "/reportList", element: ReportListPage },
   { path: "/userReporting", element: UserReportingPage },
 ];
 

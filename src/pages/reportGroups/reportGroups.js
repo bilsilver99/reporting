@@ -62,6 +62,7 @@ const ReportGroupsx = ({ companyCode }) => {
         remoteOperations={false}
         key={refreshKey} // This key will force a refresh when it changes
         onSelectionChanged={handleSelectionChanged}
+        width={"50%"}
         //onEditingStart={handleEditingStart}
       >
         <FilterRow visible={showFilterRow} applyFilter={currentFilter} />

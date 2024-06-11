@@ -69,6 +69,12 @@ const DatabaseNamesx = ({ companyCode }) => {
         <Column dataField="USERNAME" caption="User Name" />
         <Column dataField="PASSWORD" caption="Password" />
         <Column dataField="SERVERNAME" caption="Server Name" />
+        <Column
+          dataField="STEELSYSTEM"
+          caption="Steel System"
+          dataType={"boolean"}
+          editorType="dxCheckBox"
+        />
         <Paging defaultPageSize={8} />
         <Pager
           showPageSizeSelector={true}

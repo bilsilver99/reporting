@@ -24,6 +24,7 @@ export const login = async (username, password) => {
           clientcode: "",
           authorized: "N",
           administrator: "",
+          uniqueid: 0,
         };
       }
       return response.json();
@@ -38,6 +39,7 @@ export const login = async (username, password) => {
           administrator: json.user_response.Returnadministrator,
           clientcompany: json.user_response.Returnedcompanynumber,
           returnOK: json.user_response.returnOK,
+          ReturnUniqueID: json.user_response.ReturnUniqueID,
         };
       } else {
         //throw new Error("invalid username/password");

@@ -93,6 +93,7 @@ function Operatorsx({ companyCode }) {
   };
 
   const handleRowInserting = (e) => {
+    console.log("current ID", currentID, "handleRowInserting", e);
     e.data.FPUSERSID = currentID;
   };
 
@@ -142,8 +143,8 @@ function Operatorsx({ companyCode }) {
             </Item>
             <Item itemType="group" colCount={3} colSpan={1} showBorders={true}>
               <Item dataField="ADMINISTRATOR" />
-              <Item dataField="ACTIVE" />
-              <Item dataField="INTERNAL" />
+              <Item dataField="STEEL" />
+              {/* <Item dataField="INTERNAL" /> */}
             </Item>
             <EmptyItem />
             <EmptyItem />
@@ -191,7 +192,7 @@ function Operatorsx({ companyCode }) {
           />
         </Column>
         <Column dataField="ACTIVE" caption="Active" dataType={"boolean"} />
-        <Column dataField="INTERNAL" caption="Internal" dataType={"boolean"} />
+        <Column dataField="STEEL" caption="Steel" dataType={"boolean"} />
         <Column
           dataField="ADMINISTRATOR"
           caption="Administrator"
