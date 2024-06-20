@@ -7,3 +7,4 @@ export { default as ReportGroupsPage } from "./reportGroups/reportGroups";
 //export { default as ReportListPage } from "./reportList/reportList";
 export { default as UserReportingPage } from "./userReporting/reportList";
 export { default as DataBaseNamesPage } from "./databaseNames/databaseNames";
+export { default as ReportRolesPage } from "./reportRoles/reportRoles";

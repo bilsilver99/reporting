@@ -10,7 +10,12 @@ export const navigation = [
   },
   { text: "Database Names", path: "/databaseNames", auth: "Y", icon: "group" },
 
-  { text: "Operators", path: "/operators", auth: "Y", icon: "group" },
+  {
+    text: "Report Roles",
+    path: "/reportRoles",
+    auth: "Y",
+    icon: "chart",
+  },
 
   {
     text: "Report Groups",
@@ -18,6 +23,7 @@ export const navigation = [
     auth: "Y",
     icon: "chart",
   },
+  { text: "Operators", path: "/operators", auth: "Y", icon: "group" },
   { text: "Companies", path: "/companies", auth: "Y", icon: "globe" },
   {
     text: "Reporting",

@@ -1,11 +1,9 @@
 import CustomStore from "devextreme/data/custom_store";
-import axios from "axios";
-
 function isNotEmpty(value) {
   return value !== undefined && value !== null && value !== "";
 }
 
-export const ReportListStore = (myClient, administrator, OperatorID) =>
+export const ReportRolesStore = (myClient) =>
   new CustomStore({
     key: "UNIQUEID",
     load: (loadOptions) => {
@@ -35,12 +33,10 @@ export const ReportListStore = (myClient, administrator, OperatorID) =>
         },
         body: JSON.stringify({
           sentcompany: myClient,
-          sentadmin: administrator,
           Parameters: params,
-          OperatorID: OperatorID,
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/ReturnScriptList`;
+      const url = `${process.env.REACT_APP_BASE_URL}/ReturnReportRoles`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           //console.log("client " + myClient);
@@ -53,12 +49,7 @@ export const ReportListStore = (myClient, administrator, OperatorID) =>
           return response.json();
         })
         .then((json) => {
-          // console.log(
-          //   "operator ID",
-          //   OperatorID,
-          //   "list of scripts: ",
-          //   json.user_response.bankq
-          // );
+          //console.log("types: ", json.user_response.bankq);
           return {
             data: json.user_response.bankq,
             totalCount: json.user_response.totalCount,
@@ -79,7 +70,7 @@ export const ReportListStore = (myClient, administrator, OperatorID) =>
           sentcompany: myClient,
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/UpdateScriptList`;
+      const url = `${process.env.REACT_APP_BASE_URL}/UpdateReportRoles`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {
@@ -108,7 +99,7 @@ export const ReportListStore = (myClient, administrator, OperatorID) =>
           ThisFunction: "delete",
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/UpdateScriptList`;
+      const url = `${process.env.REACT_APP_BASE_URL}/UpdateReportRoles`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {
@@ -138,7 +129,7 @@ export const ReportListStore = (myClient, administrator, OperatorID) =>
           keyvaluepair: values,
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/UpdateScriptList`;
+      const url = `${process.env.REACT_APP_BASE_URL}/UpdateReportRoles`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {
@@ -155,136 +146,7 @@ export const ReportListStore = (myClient, administrator, OperatorID) =>
     },
   });
 
-export const CompanyStore = (OperatorID) => {
-  var myClient = 0;
-  var requestoptions = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json;",
-    },
-    body: JSON.stringify({
-      sentclientcode: OperatorID,
-      // OperatorID: OperatorID,
-    }),
-  };
-  const url = `${process.env.REACT_APP_BASE_URL}/ReturnCompaniesList`;
-  return fetch(url, requestoptions)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
-    .then((json) => {
-      console.log("operator: ", OperatorID, "Companies sql", json);
-      return json.user_response.bankq;
-    });
-};
-
-export const ReportGroupsStore = (myClient) => {
-  //var myClient = 1;
-  var requestoptions = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json;",
-    },
-    body: JSON.stringify({
-      sentclientcode: myClient,
-    }),
-  };
-  const url = `${process.env.REACT_APP_BASE_URL}/ReturnReportgroups`;
-  return fetch(url, requestoptions)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
-    .then((json) => {
-      console.log("client ID", myClient, "report groups sql", json);
-      return json.user_response.bankq;
-    });
-};
-
-export const UpdateScript = (key, values) => {
-  var requestoptions = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json;",
-    },
-    body: JSON.stringify({
-      uniqueid: key,
-      value: values,
-    }),
-  };
-  //console.log("values: ", values);
-  const url = `${process.env.REACT_APP_BASE_URL}/UpdateScriptField`;
-  return fetch(url, requestoptions) // Request fish
-    .then((response) => {
-      if (!response.ok) {
-        return {
-          companyname: "System did not respond",
-          returnaddress: " ",
-        };
-      }
-      return response.json();
-    })
-    .then((json) => {
-      return {};
-    });
-};
-
-export const GetScript = (key) => {
-  var requestoptions = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json;",
-    },
-    body: JSON.stringify({
-      uniqueid: key,
-    }),
-  };
-  const url = `${process.env.REACT_APP_BASE_URL}/GetScriptRecord`;
-  return fetch(url, requestoptions)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
-    .then((json) => {
-      //console.log("script sql", json.user_response.bankq.SCRIPT);
-      return json.user_response.bankq.SCRIPT;
-    });
-};
-
-export const ExecuteScript = async (script, db) => {
-  try {
-    const response = await axios.post(
-      "http://localhost:5000/execute-sql",
-      {
-        db, // Pass the selected database
-        sql: script,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        maxBodyLength: Infinity, // Ensure no limit on body length
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error executing the script", error);
-    throw error;
-  }
-};
-
-export const SubTableDataStore = (myClient, currentRow) =>
+export const RoleGroups = (myClient) =>
   new CustomStore({
     key: "UNIQUEID",
     load: (loadOptions) => {
@@ -313,11 +175,12 @@ export const SubTableDataStore = (myClient, currentRow) =>
           Accept: "application/json;",
         },
         body: JSON.stringify({
-          SentID: myClient,
+          sentcompany: myClient,
           Parameters: params,
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/ReturnScriptFilterList`;
+
+      const url = `${process.env.REACT_APP_BASE_URL}/ReturnRoleGroups`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           //console.log("client " + myClient);
@@ -330,7 +193,12 @@ export const SubTableDataStore = (myClient, currentRow) =>
           return response.json();
         })
         .then((json) => {
-          //console.log("types: ", json.user_response.bankq);
+          // console.log(
+          //   "client:",
+          //   myClient,
+          //   "company operators: ",
+          //   json.user_response.bankq
+          // );
           return {
             data: json.user_response.bankq,
             totalCount: json.user_response.totalCount,
@@ -339,14 +207,7 @@ export const SubTableDataStore = (myClient, currentRow) =>
         });
     },
     insert: (values) => {
-      // console.log(
-      //   "values: ",
-      //   values,
-      //   "myClient",
-      //   myClient,
-      //   "currentRow",
-      //   currentRow
-      // );
+      //console.log("values: ", values, "myclient: ", myClient);
       var requestoptions = {
         method: "POST",
         headers: {
@@ -357,10 +218,9 @@ export const SubTableDataStore = (myClient, currentRow) =>
           ThisFunction: "insert",
           keyvaluepair: values,
           sentcompany: myClient,
-          currentRow: currentRow,
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/UpdateScriptFilterList`;
+      const url = `${process.env.REACT_APP_BASE_URL}/updateRoleGroups`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {
@@ -389,7 +249,7 @@ export const SubTableDataStore = (myClient, currentRow) =>
           ThisFunction: "delete",
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/UpdateScriptFilterList`;
+      const url = `${process.env.REACT_APP_BASE_URL}/updateRoleGroups`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {
@@ -405,7 +265,7 @@ export const SubTableDataStore = (myClient, currentRow) =>
         });
     },
     update: (key, values) => {
-      //("key: ", key);
+      //console.log("key: ", key);
       //console.log("values: ", values);
       var requestoptions = {
         method: "POST",
@@ -419,7 +279,7 @@ export const SubTableDataStore = (myClient, currentRow) =>
           keyvaluepair: values,
         }),
       };
-      const url = `${process.env.REACT_APP_BASE_URL}/UpdateScriptFilterList`;
+      const url = `${process.env.REACT_APP_BASE_URL}/updateRoleGroups`;
       return fetch(url, requestoptions) // Request fish
         .then((response) => {
           if (!response.ok) {
@@ -436,8 +296,8 @@ export const SubTableDataStore = (myClient, currentRow) =>
     },
   });
 
-export const ReturnOperatorInfo = (myClient) => {
-  //var myClient = 1;
+export const fetchReportGroups = async () => {
+  var myClient = 0;
   var requestoptions = {
     method: "POST",
     headers: {
@@ -448,56 +308,12 @@ export const ReturnOperatorInfo = (myClient) => {
       sentclientcode: myClient,
     }),
   };
-  const url = `${process.env.REACT_APP_BASE_URL}/ReturnOperatorInfo`;
-  return fetch(url, requestoptions)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
-    .then((json) => {
-      //console.log("Companies sql", json);
-      return {
-        CompanyNumber: json.user_response.CompanyNumber,
-        UserName: json.user_response.UserName,
-        UserPassword: json.user_response.UserPassword,
-        UserFirstName: json.user_response.UserFirstName,
-        UserLastName: json.user_response.UserLastName,
-        EmailAddress: json.user_response.EmailAddress,
-        Active: json.user_response.Active,
-        Steel: json.user_response.Steel,
-        Administrator: json.user_response.Administrator,
-        DBID: json.user_response.DBID,
-        FullName: json.user_response.Fullname,
-        DBValue: json.user_response.DBValue,
-        OperatorID: json.user_response.OperatorID,
-      };
-    });
-};
-
-export const ReturnParams = (myClient) => {
-  //var myClient = 1;
-  var requestoptions = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json;",
-    },
-    body: JSON.stringify({
-      SentID: myClient,
-    }),
-  };
-  const url = `${process.env.REACT_APP_BASE_URL}/ReturnScriptFilterList`;
-  return fetch(url, requestoptions)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
-    .then((json) => {
-      //console.log("report groups sql", json);
-      return json.user_response.bankq;
-    });
+  const url = `${process.env.REACT_APP_BASE_URL}/ReturnReportGroups`;
+  const response = await fetch(url, requestoptions);
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  const json = await response.json();
+  console.log("Report Groups sql", json);
+  return json.user_response.bankq;
 };

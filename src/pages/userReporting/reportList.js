@@ -25,6 +25,8 @@ import {
   ExecuteScript,
   SubTableDataStore,
   ReturnOperatorInfo,
+  ReturnParams,
+  CompanyStore,
 } from "./reportListData";
 import { Popup, FileUploader, SelectBox, TagBox } from "devextreme-react";
 import DataSource from "devextreme/data/data_source";
@@ -65,8 +67,9 @@ const ReportListx = ({ companyCode, administrator }) => {
   const [showChart, setShowChart] = useState(false); // State to control chart visibility
   const [xKey, setXKey] = useState("");
   const [yKeys, setYKeys] = useState([]);
-
+  const [parameters, setParameters] = useState({});
   const [events, setEvents] = useState([]);
+  const [operatorID, setOperatorID] = useState(0);
   const logEvent = useCallback((eventName) => {
     setEvents((previousEvents) => [eventName, ...previousEvents]);
   }, []);
@@ -82,53 +85,57 @@ const ReportListx = ({ companyCode, administrator }) => {
 
   const [operatorInfo, setOperatorInfo] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const operatorData = await ReturnOperatorInfo(user.uniqueid);
-        setOperatorInfo(operatorData);
-        setSelectedDb(operatorData.DBValue); // Set the initial value for the SelectBox here
-      } catch (error) {
-        console.error("Error fetching operator info: ", error);
-        setOperatorInfo(null);
-      }
+  const fetchOperatorInfo = useCallback(async () => {
+    try {
+      const operatorData = await ReturnOperatorInfo(user.uniqueid);
+      console.log("User Data", user);
+      setOperatorInfo(operatorData);
+      setOperatorID(operatorData.OperatorID); // Correctly set the OperatorID from operatorData
+      setSelectedDb(operatorData.DBValue); // Set the initial value for the SelectBox here
+    } catch (error) {
+      console.error("Error fetching operator info: ", error);
+      setOperatorInfo(null);
+    }
+  }, [user.uniqueid]);
 
-      try {
-        const data = await ReportGroupsStore();
-        if (data && Array.isArray(data)) {
-          setReportGroups(data);
-        } else {
-          setReportGroups([]);
-        }
-      } catch (error) {
+  const fetchReportGroups = useCallback(async (operatorID) => {
+    try {
+      const data = await ReportGroupsStore();
+      console.log("Report Groups", data);
+      if (data && Array.isArray(data)) {
+        setReportGroups(data);
+      } else {
         setReportGroups([]);
       }
-    };
+    } catch (error) {
+      setReportGroups([]);
+    }
+  }, []);
 
-    fetchData();
-  }, [companyCode, user.uniqueid]);
+  const fetchCompanyCodes = useCallback(async (operatorID) => {
+    try {
+      const data = await CompanyStore(operatorID);
+      console.log("Companies", data);
+      if (data && Array.isArray(data)) {
+        setCompanyCodes(data);
+      } else {
+        setCompanyCodes([]);
+      }
+    } catch (error) {
+      setCompanyCodes([]);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchCompanyCodes = async () => {
-      if (operatorInfo) {
-        try {
-          const data = await CompanyStore(operatorInfo.OperatorID);
-          if (data && Array.isArray(data)) {
-            setCompanyCodes(data);
-          } else {
-            setCompanyCodes([]);
-          }
-        } catch (error) {
-          console.error("Error fetching company data: ", error);
-          setCompanyCodes([]);
-        }
-      }
-    };
+    fetchOperatorInfo();
+  }, [fetchOperatorInfo]);
 
-    if (operatorInfo) {
-      fetchCompanyCodes();
+  useEffect(() => {
+    if (operatorID) {
+      fetchReportGroups(operatorID);
+      fetchCompanyCodes(operatorID);
     }
-  }, [companyCode, administrator, operatorInfo]);
+  }, [operatorID, fetchReportGroups, fetchCompanyCodes]);
 
   useEffect(() => {
     if (operatorInfo) {
@@ -190,7 +197,13 @@ const ReportListx = ({ companyCode, administrator }) => {
     if (row !== null) {
       try {
         const scriptContent = await GetScript(row);
-        const updatedScript = injectParameters(scriptContent, scriptParameters);
+        const updatedScript = await injectParameters(
+          scriptContent,
+          scriptParameters,
+          row
+        ); // Await injectParameters
+        console.log("Parameters after injection:", scriptParameters);
+        console.log("Final script to be executed:", updatedScript);
         const result = await ExecuteScript(updatedScript, db);
         setScriptResults(result);
         setXKey(Object.keys(result[0] || [])[0]); // Set default X key
@@ -206,12 +219,46 @@ const ReportListx = ({ companyCode, administrator }) => {
     }
   };
 
-  const injectParameters = (script, parameters) => {
+  const injectParameters = async (script, parameters, row) => {
+    try {
+      const data = await ReturnParams(row); // Await the completion of ReturnParams
+      if (data && Array.isArray(data)) {
+        // Process the returned data and set the parameters
+        const processedParams = {};
+        data.forEach((param) => {
+          const key = param.FILTERVALUE.trim(); // Ensure there are no spaces
+          const value = param.FILTERDATABASEVALUE.trim(); // Ensure there are no spaces
+          processedParams[key] = value;
+        });
+        parameters = { ...parameters, ...processedParams }; // Merge the new parameters with the existing ones
+        console.log("Parameters after fetching:", parameters);
+      } else {
+        console.error("Returned data is not an array or is empty.");
+        parameters = {};
+      }
+    } catch (error) {
+      console.error("Error fetching company parameters:", error);
+      parameters = {};
+    }
+
+    console.log("Script before replacement:", script);
     let updatedScript = script;
+
     Object.keys(parameters).forEach((key) => {
-      const regex = new RegExp(`@${key}`, "g");
-      updatedScript = updatedScript.replace(regex, `'${parameters[key]}'`);
+      // Remove any leading/trailing spaces from the key
+      const trimmedKey = key.trim();
+      const regex = new RegExp(`${trimmedKey}`, "g");
+      if (updatedScript.match(regex)) {
+        console.log(
+          `Found match for ${trimmedKey}. Replacing ${trimmedKey} with ${parameters[key]}`
+        );
+        updatedScript = updatedScript.replace(regex, `'${parameters[key]}'`);
+      } else {
+        console.log(`No match found for ${trimmedKey}`);
+      }
     });
+
+    console.log("Updated script:", updatedScript);
     return updatedScript;
   };
 
@@ -277,7 +324,7 @@ const ReportListx = ({ companyCode, administrator }) => {
           >
             {operatorInfo && (
               <p>
-                User: {operatorInfo.Fullname} Steel User {operatorInfo.DBValue}
+                User: {operatorInfo.FullName} DB User {operatorInfo.DBValue}
               </p>
             )}
             <p style={{ marginRight: "10px", marginLeft: "10px" }}>Database</p>
@@ -351,23 +398,11 @@ const ReportListx = ({ companyCode, administrator }) => {
                     onRowInserting={handleSubTableRowInserting}
                   >
                     <Editing
-                      mode="popup"
+                      mode="cell"
                       allowUpdating={true}
                       allowAdding={true}
                       allowDeleting={true}
                     ></Editing>
-                    <Column
-                      dataField="UNIQUEID"
-                      caption="Uniqueid"
-                      allowEditing={false}
-                      visible={false}
-                    />
-                    <Column
-                      dataField="SCRIPTFILEID"
-                      caption="Script File ID"
-                      allowEditing={false}
-                      visible={false}
-                    />
                     <Column dataField="DESCRIPTION" caption="Description" />
                     <Column dataField="FILTERVALUE" caption="Filter Value" />
                     <Column
@@ -522,26 +557,3 @@ export default function ReportList() {
     />
   );
 }
-
-export const CompanyStore = async (OperatorID) => {
-  var myClient = 1;
-  var requestoptions = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json;",
-    },
-    body: JSON.stringify({
-      sentclientcode: myClient,
-      OperatorID: OperatorID,
-    }),
-  };
-  const url = `${process.env.REACT_APP_BASE_URL}/ReturnCompaniesList`;
-  const response = await fetch(url, requestoptions);
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
-  }
-  const json = await response.json();
-  console.log("Companies sql", json);
-  return json.user_response.bankq;
-};

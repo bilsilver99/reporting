@@ -19,13 +19,18 @@ import {
   CompanyStore,
   CompanyOperators,
   DatabaseNames,
+  RoleOperators,
+  ReturnRoles,
 } from "./operatordata";
 
 function Operatorsx({ companyCode }) {
   const { user } = useAuth();
+  const [myClient, setMyClient] = useState(user.uniqueid);
   const [operatorStore, setOperatorStore] = useState(null);
   const [companyCodes, setCompanyCodes] = useState([]);
+  const [reportCodes, setReportCodes] = useState([]); // [1
   const [subTableData, setSubTableData] = useState([]);
+  const [subTableData2, setSubTableData2] = useState([]);
   const [showHeaderFilter, setShowHeaderFilter] = useState(true);
   const [currentID, setCurrentID] = useState(null);
   const [databasenames, setdatabasenames] = useState(null);
@@ -34,6 +39,7 @@ function Operatorsx({ companyCode }) {
     const fetchData = async () => {
       const store = OperatorStore(companyCode);
       setOperatorStore(store);
+      console.log("store", store);
 
       try {
         const data = await CompanyStore();
@@ -66,6 +72,23 @@ function Operatorsx({ companyCode }) {
         );
         setdatabasenames([]); // Ensure it's an array to avoid length errors
       }
+
+      try {
+        const data = await ReturnRoles();
+        if (data && Array.isArray(data)) {
+          setReportCodes(data);
+          console.log("ReportCodes", data);
+        } else {
+          console.error("Invalid data format:", data);
+          setReportCodes([]); // Ensure it's an array to avoid length errors
+        }
+      } catch (error) {
+        console.error(
+          "There was an error fetching the Report Roles group data:",
+          error
+        );
+        setReportCodes([]); // Ensure it's an array to avoid length errors
+      }
     };
 
     fetchData();
@@ -74,6 +97,7 @@ function Operatorsx({ companyCode }) {
   const handleEditingStart = (e) => {
     setCurrentID(e.data.UNIQUEID);
     fetchSubTableData(e.data.UNIQUEID);
+    fetchSubTableData2(e.data.UNIQUEID);
   };
 
   const fetchSubTableData = async (uniqueId) => {
@@ -83,6 +107,16 @@ function Operatorsx({ companyCode }) {
     } catch (error) {
       console.error("Error fetching subtable data", error);
       setSubTableData([]); // Set an empty array on error
+    }
+  };
+
+  const fetchSubTableData2 = async (uniqueId) => {
+    try {
+      const data = await RoleOperators(uniqueId);
+      setSubTableData2(data);
+    } catch (error) {
+      console.error("Error fetching subtable2 data", error);
+      setSubTableData2([]); // Set an empty array on error
     }
   };
 
@@ -166,13 +200,41 @@ function Operatorsx({ companyCode }) {
                   allowAdding={true}
                   allowDeleting={true}
                 />
-                {/* <Column dataField="UNIQUEID" visible={false} />
+                {/* <Column dataField="UNIQUEID" caption="Unique ID" />
                 <Column dataField="FPUSERSID" caption="User ID" /> */}
                 <Column dataField="COMPANIESID" caption="Company">
                   <Lookup
                     dataSource={companyCodes}
                     valueExpr="UNIQUEID"
                     displayExpr="COMNAME"
+                  />
+                </Column>
+              </DataGrid>
+            </Item>
+
+            <Item colSpan={2}>
+              <DataGrid
+                dataSource={subTableData2}
+                keyExpr="FPUSERSID" // Use the appropriate key field for subTableData
+                showBorders={true}
+                onRowInserting={handleRowInserting}
+                allowAdding={true}
+                allowUpdating={true}
+                allowDeleting={true}
+              >
+                <Editing
+                  mode="cell"
+                  allowUpdating={true}
+                  allowAdding={true}
+                  allowDeleting={true}
+                />
+                {/* <Column dataField="UNIQUEID" visible={false} />
+                <Column dataField="FPUSERSID" caption="User ID" /> */}
+                <Column dataField="ROLESID" caption="Role">
+                  <Lookup
+                    dataSource={reportCodes}
+                    valueExpr="UNIQUEID"
+                    displayExpr="DESCRIPTION"
                   />
                 </Column>
               </DataGrid>

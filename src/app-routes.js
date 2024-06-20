@@ -8,6 +8,7 @@ import {
   //ReportListPage,
   UserReportingPage,
   DataBaseNamesPage,
+  ReportRolesPage,
 } from "./pages";
 import { withNavigationWatcher } from "./contexts/navigation";
 //import path from "path-browserify";
@@ -39,6 +40,7 @@ const routes = [
     element: CompaniesPage,
   },
   { path: "/reportGroups", element: ReportGroupsPage },
+  { path: "/reportRoles", element: ReportRolesPage },
   //{ path: "/reportList", element: ReportListPage },
   { path: "/userReporting", element: UserReportingPage },
 ];
