@@ -10,6 +10,7 @@ import DataGrid, {
 } from "devextreme-react/data-grid";
 import { useAuth } from "../../contexts/auth";
 import { OperatorStore } from "./companiesdata";
+import "./companies.scss";
 
 const allowedPageSizes = [8, 12, 20];
 
@@ -55,7 +56,7 @@ const Operatorsx = ({ companyCode }) => {
   }
 
   return (
-    <div className="content-block dx-card responsive-paddings">
+    <div className="content-block4 dx-card responsive-paddings">
       <DataGrid
         dataSource={operatorStore}
         showBorders={true}
@@ -63,7 +64,7 @@ const Operatorsx = ({ companyCode }) => {
         key={refreshKey} // This key will force a refresh when it changes
         onSelectionChanged={handleSelectionChanged}
         //onEditingStart={handleEditingStart}
-        width={"60%"}
+        // width={"60%"}
       >
         <FilterRow visible={showFilterRow} applyFilter={currentFilter} />
         <HeaderFilter visible={showHeaderFilter} />

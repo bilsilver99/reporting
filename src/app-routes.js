@@ -7,6 +7,7 @@ import {
   ReportGroupsPage,
   //ReportListPage,
   UserReportingPage,
+  ReportingPage,
   DataBaseNamesPage,
   ReportRolesPage,
 } from "./pages";
@@ -43,6 +44,7 @@ const routes = [
   { path: "/reportRoles", element: ReportRolesPage },
   //{ path: "/reportList", element: ReportListPage },
   { path: "/userReporting", element: UserReportingPage },
+  { path: "/reporting", element: ReportingPage },
 ];
 
 export default routes.map((route) => {

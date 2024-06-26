@@ -1,0 +1,18 @@
+/* Custom CSS for DataGrid header */
+
+/* Custom CSS for DataGrid header */
+
+.custom-header .dx-header-row .dx-datagrid-text-content {
+  color: white; /* White text color */
+}
+
+.button-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.custom-header .dx-datagrid-headers {
+  background-color: rgb(45, 176, 104);
+  color: white;
+}

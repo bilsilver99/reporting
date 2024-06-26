@@ -1,21 +1,37 @@
 import Drawer from "devextreme-react/drawer";
 import ScrollView from "devextreme-react/scroll-view";
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { Header, SideNavigationMenu, Footer } from "../../components";
 import "./side-nav-outer-toolbar.scss";
 import { useScreenSize } from "../../utils/media-query";
 import { Template } from "devextreme-react/core/template";
 import { useMenuPatch } from "../../utils/patches";
+import { useAuth } from "../../contexts/auth";
 
 export default function SideNavOuterToolbar({ title, children }) {
   const scrollViewRef = useRef(null);
   const navigate = useNavigate();
   const { isXSmall, isLarge } = useScreenSize();
   const [patchCssClass, onMenuReady] = useMenuPatch();
-  const [menuStatus, setMenuStatus] = useState(
-    isLarge ? MenuStatus.Opened : MenuStatus.Closed
-  );
+
+  const { user } = useAuth();
+  const [administrator, setAdministrator] = useState(user.administrator);
+
+  // const [menuStatus, setMenuStatus] = useState(
+  //   isLarge ? MenuStatus.Opened : MenuStatus.Closed
+  // );
+  // const { user } = useAuth();
+  // const [administrator, setAdministrator] = useState(user.administrator);
+  // const toggleMenu = useCallback(({ event }) => {
+  //   setMenuStatus((prevMenuStatus) =>
+  //     prevMenuStatus === MenuStatus.Closed
+  //       ? MenuStatus.Opened
+  //       : MenuStatus.Closed
+  //   );
+  //   event.stopPropagation();
+  // }, []);
+  const [menuStatus, setMenuStatus] = useState(MenuStatus.Closed);
 
   const toggleMenu = useCallback(({ event }) => {
     setMenuStatus((prevMenuStatus) =>
@@ -61,6 +77,13 @@ export default function SideNavOuterToolbar({ title, children }) {
     [navigate, menuStatus, isLarge]
   );
 
+  useEffect(() => {
+    if (administrator !== "Y") {
+      // Navigate to the Client Management page when the component mounts
+      navigate("/userReporting");
+    }
+  }, [navigate]);
+
   return (
     <div className={"side-nav-outer-toolbar"}>
       <Header menuToggleEnabled toggleMenu={toggleMenu} title={title} />
@@ -70,7 +93,7 @@ export default function SideNavOuterToolbar({ title, children }) {
         closeOnOutsideClick={onOutsideClick}
         openedStateMode={isLarge ? "shrink" : "overlap"}
         revealMode={isXSmall ? "slide" : "expand"}
-        minSize={isXSmall ? 0 : 250}
+        minSize={isXSmall ? 0 : 50}
         maxSize={250}
         shading={isLarge ? false : true}
         opened={menuStatus === MenuStatus.Closed ? false : true}

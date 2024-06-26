@@ -7,7 +7,6 @@ import DataGrid, {
   FilterRow,
   HeaderFilter,
   SearchPanel,
-  Lookup,
   Item,
   Form,
   Selection,
@@ -27,8 +26,9 @@ import {
   ReturnOperatorInfo,
   ReturnParams,
   CompanyStore,
+  updatethisline,
 } from "./reportListData";
-import { Popup, FileUploader, SelectBox, TagBox } from "devextreme-react";
+import { Popup, SelectBox, TagBox } from "devextreme-react";
 import DataSource from "devextreme/data/data_source";
 import Button from "devextreme-react/button";
 import { exportDataGrid } from "devextreme/excel_exporter";
@@ -45,11 +45,112 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { useForm, FormProvider, useFormContext } from "react-hook-form";
+import Loading from "react-loading"; // Import the spinner component
 
 const allowedPageSizes = [8, 12, 20];
 
+const fetchDropdownData = async (selectedCompanyCode, tableName, fieldName) => {
+  const requestoptions = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json;",
+    },
+    body: JSON.stringify({
+      tableName: tableName,
+      fieldName: fieldName,
+      selectedCompanyCode: selectedCompanyCode,
+    }),
+  };
+  const url = `${process.env.REACT_APP_BASE_URL}/ReturnDropDownList`;
+  return fetch(url, requestoptions)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((json) => json.user_response.bankq)
+    .catch((error) => {
+      console.error("Error fetching dropdown data:", error);
+      return [];
+    });
+};
+
+const CellTemplate = ({ value, data, selectedCompanyCode }) => {
+  const { setValue } = useFormContext();
+  const [dropdownData, setDropdownData] = useState([]);
+  const [selectedValue, setSelectedValue] = useState(value);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const fileString = data.data.FILESTRING;
+      if (fileString) {
+        const [tableName, fieldName] = fileString.split(".");
+        try {
+          const fetchedData = await fetchDropdownData(
+            selectedCompanyCode,
+            tableName,
+            fieldName
+          );
+          setDropdownData(fetchedData);
+        } catch (error) {
+          console.error("Error fetching dropdown data:", error);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [data.data.FILESTRING, selectedCompanyCode]);
+
+  const handleValueChange = (newValue) => {
+    if (newValue === undefined || newValue === null) {
+      return;
+    }
+    data.data.FILESTRINGVALUE = newValue;
+    updatethisline(data.data.UNIQUEID, newValue);
+    setValue("FILESTRINGVALUE", newValue);
+    setSelectedValue(newValue);
+  };
+
+  if (!data.data.FILESTRING) {
+    return null;
+  }
+
+  return (
+    <div>
+      {loading ? (
+        <Loading type="spin" color="#000" height={20} width={20} />
+      ) : (
+        <SelectBox
+          dataSource={dropdownData}
+          value={selectedValue}
+          displayExpr="CODE"
+          valueExpr="CODE"
+          searchEnabled={true}
+          onValueChanged={(e) => handleValueChange(e.value)}
+        />
+      )}
+    </div>
+  );
+};
+
+const CustomCellComponent = ({ data, value }) => {
+  return data.data.FILESTRING === "" ? (
+    <input type="text" value={value} readOnly />
+  ) : (
+    <span></span>
+  );
+};
+
 const ReportListx = ({ companyCode, administrator }) => {
   const { user } = useAuth();
+  const methods = useForm();
   const [dataSource, setDataSource] = useState(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [currentRow, setCurrentRow] = useState(null);
@@ -60,19 +161,20 @@ const ReportListx = ({ companyCode, administrator }) => {
   const [companyCodes, setCompanyCodes] = useState([]);
   const [reportGroups, setReportGroups] = useState([]);
   const [scriptResults, setScriptResults] = useState("");
-  const [selectedDb, setSelectedDb] = useState(""); // Initialize as empty string
+  const [selectedDb, setSelectedDb] = useState("");
   const [selectedCompanyCode, setSelectedCompanyCode] = useState("");
-
-  const [subTableData, setSubTableData] = useState([]); // Subtable data
-  const [showChart, setShowChart] = useState(false); // State to control chart visibility
+  const [subTableData, setSubTableData] = useState([]);
+  const [showChart, setShowChart] = useState(false);
   const [xKey, setXKey] = useState("");
   const [yKeys, setYKeys] = useState([]);
   const [parameters, setParameters] = useState({});
   const [events, setEvents] = useState([]);
   const [operatorID, setOperatorID] = useState(0);
+
   const logEvent = useCallback((eventName) => {
     setEvents((previousEvents) => [eventName, ...previousEvents]);
   }, []);
+
   const clearEvents = useCallback(() => {
     setEvents([]);
   }, []);
@@ -88,10 +190,9 @@ const ReportListx = ({ companyCode, administrator }) => {
   const fetchOperatorInfo = useCallback(async () => {
     try {
       const operatorData = await ReturnOperatorInfo(user.uniqueid);
-      console.log("User Data", user);
       setOperatorInfo(operatorData);
-      setOperatorID(operatorData.OperatorID); // Correctly set the OperatorID from operatorData
-      setSelectedDb(operatorData.DBValue); // Set the initial value for the SelectBox here
+      setOperatorID(operatorData.OperatorID);
+      setSelectedDb(operatorData.DBValue);
     } catch (error) {
       console.error("Error fetching operator info: ", error);
       setOperatorInfo(null);
@@ -101,7 +202,6 @@ const ReportListx = ({ companyCode, administrator }) => {
   const fetchReportGroups = useCallback(async (operatorID) => {
     try {
       const data = await ReportGroupsStore();
-      console.log("Report Groups", data);
       if (data && Array.isArray(data)) {
         setReportGroups(data);
       } else {
@@ -115,7 +215,6 @@ const ReportListx = ({ companyCode, administrator }) => {
   const fetchCompanyCodes = useCallback(async (operatorID) => {
     try {
       const data = await CompanyStore(operatorID);
-      console.log("Companies", data);
       if (data && Array.isArray(data)) {
         setCompanyCodes(data);
       } else {
@@ -151,7 +250,6 @@ const ReportListx = ({ companyCode, administrator }) => {
 
   const handleEditingStart = (e) => {
     setCurrentRow(e.data.UNIQUEID);
-    console.log("Current Row", e.data.UNIQUEID);
     fetchSubTableData(e.data.UNIQUEID);
   };
 
@@ -193,7 +291,6 @@ const ReportListx = ({ companyCode, administrator }) => {
 
   const executeScript = async (params = {}) => {
     const { row = currentRow, db = selectedDb, refresh = true } = params;
-
     if (row !== null) {
       try {
         const scriptContent = await GetScript(row);
@@ -201,19 +298,16 @@ const ReportListx = ({ companyCode, administrator }) => {
           scriptContent,
           scriptParameters,
           row
-        ); // Await injectParameters
-        console.log("Parameters after injection:", scriptParameters);
-        console.log("Final script to be executed:", updatedScript);
+        );
         const result = await ExecuteScript(updatedScript, db);
         setScriptResults(result);
-        setXKey(Object.keys(result[0] || [])[0]); // Set default X key
-        setYKeys([Object.keys(result[0] || [])[1]]); // Set default Y keys
+        setXKey(Object.keys(result[0] || [])[0]);
+        setYKeys([Object.keys(result[0] || [])[1]]);
       } catch (error) {
         console.error("Error executing the script", error);
-        setScriptResults([]); // Set an empty array on error
+        setScriptResults([]);
       }
     }
-
     if (refresh) {
       setRefreshKey((prevKey) => prevKey + 1);
     }
@@ -221,51 +315,44 @@ const ReportListx = ({ companyCode, administrator }) => {
 
   const injectParameters = async (script, parameters, row) => {
     try {
-      const data = await ReturnParams(row); // Await the completion of ReturnParams
+      const data = await ReturnParams(row);
       if (data && Array.isArray(data)) {
-        // Process the returned data and set the parameters
         const processedParams = {};
         data.forEach((param) => {
-          const key = param.FILTERVALUE.trim(); // Ensure there are no spaces
-          const value = param.FILTERDATABASEVALUE.trim(); // Ensure there are no spaces
-          processedParams[key] = value;
+          const type = param.FILTERTYPE.trim();
+          const key = param.FILTERVALUE.trim();
+          const value = param.FILTERDATABASEVALUE.trim();
+          processedParams[key] = { value, type };
         });
-        parameters = { ...parameters, ...processedParams }; // Merge the new parameters with the existing ones
-        console.log("Parameters after fetching:", parameters);
+        parameters = { ...parameters, ...processedParams };
       } else {
-        console.error("Returned data is not an array or is empty.");
         parameters = {};
       }
     } catch (error) {
-      console.error("Error fetching company parameters:", error);
       parameters = {};
     }
 
-    console.log("Script before replacement:", script);
     let updatedScript = script;
 
     Object.keys(parameters).forEach((key) => {
-      // Remove any leading/trailing spaces from the key
       const trimmedKey = key.trim();
       const regex = new RegExp(`${trimmedKey}`, "g");
+      const { value, type } = parameters[trimmedKey];
+
       if (updatedScript.match(regex)) {
-        console.log(
-          `Found match for ${trimmedKey}. Replacing ${trimmedKey} with ${parameters[key]}`
+        updatedScript = updatedScript.replace(
+          regex,
+          type === "value" ? value : `'${value}'`
         );
-        updatedScript = updatedScript.replace(regex, `'${parameters[key]}'`);
-      } else {
-        console.log(`No match found for ${trimmedKey}`);
       }
     });
 
-    console.log("Updated script:", updatedScript);
     return updatedScript;
   };
 
   const exportGridToExcel = () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Main sheet");
-
     exportDataGrid({
       component: dataGridRef.current.instance,
       worksheet: worksheet,
@@ -288,11 +375,14 @@ const ReportListx = ({ companyCode, administrator }) => {
 
   const fetchSubTableData = async (uniqueId) => {
     try {
-      const data = await SubTableDataStore(uniqueId, currentRow);
+      const data = await SubTableDataStore(
+        uniqueId,
+        currentRow,
+        selectedCompanyCode
+      );
       setSubTableData(data);
     } catch (error) {
-      console.error("Error fetching subtable data", error);
-      setSubTableData([]); // Set an empty array on error
+      setSubTableData([]);
     }
   };
 
@@ -303,6 +393,12 @@ const ReportListx = ({ companyCode, administrator }) => {
   ];
 
   const toggleChart = () => {
+    const items = Object.keys(scriptResults[0] || {}).map((key) => ({
+      value: key,
+      label: key,
+    }));
+    console.log("items in chart header", items);
+
     setShowChart(!showChart);
   };
 
@@ -311,249 +407,250 @@ const ReportListx = ({ companyCode, administrator }) => {
     setRefreshKey((prevKey) => prevKey + 1);
   };
 
-  const handleSubTableRowInserting = (e) => {
-    // e.data.SCRIPTFILEID = currentRow;
-  };
-
   return (
-    <div className="content-block dx-card responsive-paddings">
-      {scriptResults === "" && (
-        <>
-          <div
-            style={{ display: "flex", alignItems: "center", marginTop: "20px" }}
-          >
-            {operatorInfo && (
-              <p>
-                User: {operatorInfo.FullName} DB User {operatorInfo.DBValue}
-              </p>
-            )}
-            <p style={{ marginRight: "10px", marginLeft: "10px" }}>Database</p>
-            <SelectBox
-              items={dbItems}
-              value={selectedDb}
-              onValueChanged={(e) => setSelectedDb(e.value)}
-              displayExpr="description"
-              valueExpr="value"
-              style={{ width: "150px" }} // Set the width of the SelectBox
-            />
-            <p style={{ marginRight: "10px", marginLeft: "30px" }}>Company</p>
-            <SelectBox
-              items={companyCodes}
-              value={selectedCompanyCode}
-              onValueChanged={setCompanyCode}
-              displayExpr="COMNAME" // Ensure this matches the key in your data
-              valueExpr="COMNUMBER" // Ensure this matches the key in your data
-              style={{ width: "150px" }} // Set the width of the SelectBox
-            />
-          </div>
-          <DataGrid
-            dataSource={dataSource}
-            keyExpr={"UNIQUEID"}
-            showBorders={true}
-            remoteOperations={false}
-            key={refreshKey}
-            onEditingStart={handleEditingStart}
-          >
-            <Selection mode="single" />
-            <FilterRow visible={showFilterRow} applyFilter={currentFilter} />
-            <HeaderFilter visible={showHeaderFilter} />
-            <SearchPanel visible={true} width={240} placeholder="Search..." />
-            <Paging enabled={true} />
-            <Editing
-              mode="popup"
-              allowUpdating={true}
-              allowAdding={administrator === "Y"}
-              allowDeleting={administrator === "Y"}
-            >
-              <Popup
-                title="Edit Report"
-                showTitle={true}
-                width={700}
-                height={525}
-              />
-              <Form colCount={4}>
-                <Item dataField="GROUPCODE" />
-                <Item dataField="DESCRIPTION" />
-                <Item dataField="STEEL" visible={true} dataType={"boolean"} />
-                {/* <Item></Item> */}
-                <EmptyItem />
-                <Item
-                  colSpan={2}
-                  dataField="SCRIPT"
-                  editorType="dxTextArea"
-                  editorOptions={{
-                    height: 200,
-                    stylingMode: "outlined",
-                    inputAttr: {
-                      style: { textAlign: "left", paddingTop: "0px" },
-                      maxLength: 10000,
-                    },
-                  }}
-                />
-                <Item colSpan={2}>
-                  <DataGrid
-                    dataSource={subTableData}
-                    keyExpr={"UNIQUEID"}
-                    showBorders={true}
-                    onRowInserting={handleSubTableRowInserting}
-                  >
-                    <Editing
-                      mode="cell"
-                      allowUpdating={true}
-                      allowAdding={true}
-                      allowDeleting={true}
-                    ></Editing>
-                    <Column dataField="DESCRIPTION" caption="Description" />
-                    <Column dataField="FILTERVALUE" caption="Filter Value" />
-                    <Column
-                      dataField="FILTERDATABASEVALUE"
-                      caption="Filter DB Value  "
-                    />
-                  </DataGrid>
-                </Item>
-                <Item colSpan={4}>
-                  <FileUploader
-                    selectButtonText="Select File"
-                    labelText=""
-                    accept=".sql"
-                    uploadMode="useForm"
-                    onValueChanged={handleFileUpload}
-                  />
-                </Item>
-                <Item colSpan={4}>
-                  <FileUploader
-                    selectButtonText="Select Parameters File"
-                    labelText=""
-                    accept=".json"
-                    uploadMode="useForm"
-                    onValueChanged={handleParametersUpload}
-                  />
-                </Item>
-                <Item colSpan={1}>
-                  <Button
-                    text="Execute Script"
-                    onClick={executeScript}
-                    width="100%"
-                    type="default"
-                  />
-                </Item>
-              </Form>
-            </Editing>
-            <Column dataField="UNIQUEID" allowEditing={false} visible={false} />
-            <Column dataField="GROUPCODE" caption="Group Code">
-              <Lookup
-                dataSource={reportGroups}
-                valueExpr="GROUPCODE"
-                displayExpr="DESCRIPTION"
-              />
-            </Column>
-            <Column dataField="DESCRIPTION" caption="Description" />
-            <Column dataField="STEEL" caption="Steel" dataType={"boolean"} />
-            {administrator === "Y" && (
-              <Column dataField="SCRIPT" caption="Script" />
-            )}
-            <Paging defaultPageSize={8} />
-            <Pager
-              showPageSizeSelector={true}
-              allowedPageSizes={allowedPageSizes}
-            />
-          </DataGrid>
-        </>
-      )}
-
-      {scriptResults && (
-        <>
-          <div className="button-container">
-            <Button
-              text="Close"
-              onClick={ClearScriptResults}
-              width="20%"
-              type="default"
-            />
-            <Button
-              text="Export to Excel"
-              onClick={exportGridToExcel}
-              width="20%"
-              type="default"
-            />
-            <Button
-              text="Show/Hide Chart"
-              onClick={toggleChart}
-              width="20%"
-              type="default"
-            />
-          </div>
-          {!showChart && (
-            <DataGrid
-              ref={dataGridRef}
-              dataSource={scriptResults}
-              showBorders={true}
-              className="custom-header"
-              allowColumnReordering={true}
-              allowColumnResizing={true}
-            >
-              <ColumnChooser enabled={true} />
-              <Toolbar>
-                <Item name="columnChooserButton" />
-              </Toolbar>
-              <FilterRow visible={showFilterRow} applyFilter={currentFilter} />
-              <HeaderFilter visible={showHeaderFilter} />
-              <SearchPanel visible={true} width={240} placeholder="Search..." />
-              {Object.keys(scriptResults[0] || {}).map((key) => (
-                <Column key={key} dataField={key} caption={key} />
-              ))}
-            </DataGrid>
-          )}
-          {showChart && (
-            <div style={{ display: "flex", flexDirection: "column" }}>
+    <FormProvider {...methods}>
+      <div className="content-block dx-card responsive-paddings">
+        {scriptResults === "" && (
+          <>
+            <div className="form-row">
+              <p>Company</p>
               <SelectBox
-                items={Object.keys(scriptResults[0] || {}).map((key) => ({
-                  value: key,
-                  label: key,
-                }))}
-                value={xKey}
-                onValueChanged={(e) => setXKey(e.value)}
-                placeholder="Select X Axis Key"
+                items={companyCodes}
+                value={selectedCompanyCode}
+                onValueChanged={setCompanyCode}
+                displayExpr="COMNAME"
+                valueExpr="COMNUMBER"
+                className="select-box"
               />
-              <TagBox
-                items={Object.keys(scriptResults[0] || {}).map((key) => ({
-                  value: key,
-                  label: key,
-                }))}
-                value={yKeys}
-                onValueChanged={(e) => setYKeys(e.value)}
-                placeholder="Select Y Axis Keys"
-                showSelectionControls={true}
-                applyValueMode="useButtons"
-                multiline={false}
-              />
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={scriptResults}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey={xKey} />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  {Array.isArray(yKeys) &&
-                    yKeys.map((key) => (
-                      <Bar key={key} dataKey={key} fill="#8884d8" />
-                    ))}
-                </BarChart>
-              </ResponsiveContainer>
             </div>
-          )}
-        </>
-      )}
-    </div>
+            {selectedCompanyCode && (
+              <DataGrid
+                dataSource={dataSource}
+                keyExpr={"UNIQUEID"}
+                showBorders={true}
+                remoteOperations={false}
+                key={refreshKey}
+                onEditingStart={handleEditingStart}
+                width={"50%"}
+              >
+                <Selection mode="single" />
+                <FilterRow
+                  visible={showFilterRow}
+                  applyFilter={currentFilter}
+                />
+                <HeaderFilter visible={showHeaderFilter} />
+                <SearchPanel
+                  visible={true}
+                  width={240}
+                  placeholder="Search..."
+                />
+                <Paging enabled={true} />
+                <Editing
+                  mode="popup"
+                  allowUpdating={true}
+                  allowAdding={false}
+                  allowDeleting={false}
+                >
+                  <Popup
+                    title="Edit Report"
+                    showTitle={true}
+                    width={900}
+                    height={525}
+                  />
+                  <Form colCount={4}>
+                    <Item dataField="GROUPCODE" />
+                    <Item dataField="DESCRIPTION" />
+                    <Item
+                      dataField="STEEL"
+                      visible={true}
+                      dataType={"boolean"}
+                    />
+                    <Item></Item>
+                    <Item colSpan={4}>
+                      <DataGrid
+                        dataSource={subTableData}
+                        keyExpr={"UniqueID"}
+                        showBorders={true}
+                      >
+                        <Editing
+                          mode="cell"
+                          allowUpdating={true}
+                          allowAdding={false}
+                          allowDeleting={false}
+                        ></Editing>
+                        <Column
+                          dataField="UNIQUEID"
+                          caption="Uniqueid"
+                          allowEditing={false}
+                          visible={false}
+                        />
+                        <Column
+                          dataField="SCRIPTFILEID"
+                          caption="Script File ID"
+                          allowEditing={false}
+                          visible={false}
+                        />
+                        <Column dataField="DESCRIPTION" caption="Description" />
+
+                        <Column
+                          dataField="FILTERDATABASEVALUE"
+                          caption="Value"
+                          editCellComponent={(cellProps) => (
+                            <CustomCellComponent
+                              data={cellProps.data}
+                              value={cellProps.value}
+                            />
+                          )}
+                        />
+
+                        <Column
+                          dataField="FILESTRINGVALUE"
+                          caption="Selected Value"
+                          value={"FILESTRINGVALUE"}
+                          editCellComponent={(cellProps) => {
+                            return cellProps.data.FILESTRING !== "" ? (
+                              <CellTemplate
+                                value={cellProps.value}
+                                data={cellProps.data}
+                                selectedCompanyCode={selectedCompanyCode}
+                              />
+                            ) : null;
+                          }}
+                        />
+                      </DataGrid>
+                    </Item>
+                    <EmptyItem colSpan={2} />
+                    <Item colSpan={1}>
+                      <Button
+                        text="Run"
+                        onClick={executeScript}
+                        width="100%"
+                        type="default"
+                      />
+                    </Item>
+                  </Form>
+                </Editing>
+                <Column
+                  dataField="UNIQUEID"
+                  allowEditing={false}
+                  visible={false}
+                />
+                <Column
+                  dataField="GROUPCODE"
+                  caption="Group Code"
+                  allowEditing={false}
+                ></Column>
+                <Column
+                  dataField="DESCRIPTION"
+                  caption="Description"
+                  allowEditing={false}
+                />
+                <Paging defaultPageSize={8} />
+                <Pager
+                  showPageSizeSelector={true}
+                  allowedPageSizes={allowedPageSizes}
+                />
+              </DataGrid>
+            )}
+          </>
+        )}
+
+        {scriptResults && (
+          <div>
+            <div className="button-container">
+              <Button
+                text="Close"
+                onClick={ClearScriptResults}
+                width="20%"
+                type="default"
+              />
+              <Button
+                text="Export to Excel"
+                onClick={exportGridToExcel}
+                width="20%"
+                type="default"
+              />
+              <Button
+                text="Show/Hide Chart"
+                onClick={toggleChart}
+                width="20%"
+                type="default"
+              />
+            </div>
+            {!showChart && (
+              <DataGrid
+                ref={dataGridRef}
+                dataSource={scriptResults}
+                showBorders={true}
+                className="custom-header"
+                allowColumnReordering={true}
+                allowColumnResizing={true}
+              >
+                <ColumnChooser enabled={true} />
+                <Toolbar>
+                  <Item name="columnChooserButton" />
+                </Toolbar>
+                <FilterRow
+                  visible={showFilterRow}
+                  applyFilter={currentFilter}
+                />
+                <HeaderFilter visible={showHeaderFilter} />
+                <SearchPanel
+                  visible={true}
+                  width={240}
+                  placeholder="Search..."
+                />
+                {Object.keys(scriptResults[0] || {}).map((key) => (
+                  <Column key={key} dataField={key} caption={key} />
+                ))}
+              </DataGrid>
+            )}
+            {showChart && (
+              <div className="chart-container">
+                <SelectBox
+                  items={Object.keys(scriptResults[0] || {}).map((key) => ({
+                    value: key,
+                    label: key,
+                  }))}
+                  value={xKey}
+                  onValueChanged={(e) => setXKey(e.value)}
+                  //placeholder="Select X Axis Key"
+                />
+                <TagBox
+                  items={Object.keys(scriptResults[0] || {}).map((key) => ({
+                    value: key,
+                    label: key,
+                  }))}
+                  value={yKeys}
+                  onValueChanged={(e) => setYKeys(e.value)}
+                  placeholder="Select Y Axis Keys"
+                  showSelectionControls={true}
+                  applyValueMode="useButtons"
+                  multiline={false}
+                />
+                <ResponsiveContainer width="100%" height={400}>
+                  <BarChart data={scriptResults}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey={xKey} />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    {Array.isArray(yKeys) &&
+                      yKeys.map((key) => (
+                        <Bar key={key} dataKey={key} fill="#8884d8" />
+                      ))}
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </FormProvider>
   );
 };
 
 export default function ReportList() {
   const { user } = useAuth();
-  return (
-    <ReportListx
-      companyCode={user.companynumber}
-      administrator={user.administrator}
-    />
-  );
+  return <ReportListx companyCode={user.companynumber} administrator="N" />;
 }

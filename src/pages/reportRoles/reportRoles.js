@@ -96,14 +96,14 @@ const ReportRolesx = ({ companyCode }) => {
   };
 
   return (
-    <div className="content-block dx-card responsive-paddings">
+    <div className="content-block3 dx-card responsive-paddings">
       <DataGrid
         dataSource={reportrolesStore}
         showBorders={true}
         remoteOperations={false}
         key={refreshKey} // This key will force a refresh when it changes
         onSelectionChanged={handleSelectionChanged}
-        width={"50%"}
+        width={"100%"}
         onEditingStart={handleEditingStart}
       >
         <FilterRow visible={showFilterRow} applyFilter={currentFilter} />
@@ -120,8 +120,8 @@ const ReportRolesx = ({ companyCode }) => {
           <Popup
             title="Operator Info"
             showTitle={true}
-            width={"60%"}
-            height={700}
+            width={"40%"}
+            height={600}
           />
           <Form colCount={4}>
             <Item itemType="group" colSpan={2} showBorders={true}>
@@ -132,7 +132,7 @@ const ReportRolesx = ({ companyCode }) => {
             <EmptyItem />
             <EmptyItem />
 
-            <Item colSpan={2}>
+            <Item colSpan={4}>
               <DataGrid
                 dataSource={subTableData}
                 keyExpr="UNIQUEID" // Use the appropriate key field for subTableData

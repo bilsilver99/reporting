@@ -5,7 +5,7 @@ export const navigation = [
     text: "Home",
     path: "/home",
     tooltip: "home",
-    auth: "X",
+    auth: "Y",
     icon: "home",
   },
   { text: "Database Names", path: "/databaseNames", auth: "Y", icon: "group" },
@@ -26,18 +26,24 @@ export const navigation = [
   { text: "Operators", path: "/operators", auth: "Y", icon: "group" },
   { text: "Companies", path: "/companies", auth: "Y", icon: "globe" },
   {
-    text: "Reporting",
+    text: "User Reporting",
     auth: "X",
     path: "/userReporting",
     icon: "product",
   },
-
   {
-    text: "ad hoc Reporting",
+    text: "Reporting",
     auth: "Y",
     path: "/reporting",
-    icon: "selectall",
+    icon: "product",
   },
+
+  // {
+  //   text: "ad hoc Reporting",
+  //   auth: "Y",
+  //   path: "/reporting",
+  //   icon: "selectall",
+  // },
 ];
 
 // {

@@ -14,3 +14,18 @@
   background-color: rgb(45, 176, 104);
   color: white;
 }
+
+/* Add this to your reportList.css file */
+.content-block3.dx-card.responsive-paddings {
+  width: 50%; /* Adjust width as needed */
+  margin: 40px 0 0 30px; /* Add top and left margin to move the box down and to the right */
+  padding: 20px; /* Add padding for spacing */
+  background-color: white; /* Ensure background is white */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for better visuals */
+}
+/* Add this to your reportList.css file */
+.small-form {
+  width: 100%; /* Make form take full width of the popup */
+  padding: 10px; /* Adjust padding for internal spacing */
+  box-sizing: border-box; /* Ensure padding is included in the total width/height */
+}

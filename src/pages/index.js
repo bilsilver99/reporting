@@ -8,3 +8,4 @@ export { default as ReportGroupsPage } from "./reportGroups/reportGroups";
 export { default as UserReportingPage } from "./userReporting/reportList";
 export { default as DataBaseNamesPage } from "./databaseNames/databaseNames";
 export { default as ReportRolesPage } from "./reportRoles/reportRoles";
+export { default as ReportingPage } from "./reporting/reportList";
