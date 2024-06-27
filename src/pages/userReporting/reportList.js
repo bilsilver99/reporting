@@ -13,6 +13,7 @@ import DataGrid, {
   Toolbar,
   ColumnChooser,
   Export,
+  Button as GridButton,
 } from "devextreme-react/data-grid";
 import { EmptyItem, SimpleItem } from "devextreme-react/form";
 import { useAuth } from "../../contexts/auth";
@@ -431,7 +432,7 @@ const ReportListx = ({ companyCode, administrator }) => {
                 remoteOperations={false}
                 key={refreshKey}
                 onEditingStart={handleEditingStart}
-                width={"50%"}
+                width={"80%"}
               >
                 <Selection mode="single" />
                 <FilterRow
@@ -459,7 +460,7 @@ const ReportListx = ({ companyCode, administrator }) => {
                   />
                   <Form colCount={4}>
                     <Item dataField="GROUPCODE" />
-                    <Item dataField="DESCRIPTION" />
+                    <Item dataField="DESCRIPTION" width={400} />
                     <Item
                       dataField="STEEL"
                       visible={true}
