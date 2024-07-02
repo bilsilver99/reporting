@@ -161,16 +161,18 @@ const ReportListx = ({ companyCode, administrator }) => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [companyCodes, setCompanyCodes] = useState([]);
   const [reportGroups, setReportGroups] = useState([]);
-  const [scriptResults, setScriptResults] = useState("");
+  const [scriptResults, setScriptResults] = useState([]);
   const [selectedDb, setSelectedDb] = useState("");
   const [selectedCompanyCode, setSelectedCompanyCode] = useState("");
   const [subTableData, setSubTableData] = useState([]);
   const [showChart, setShowChart] = useState(false);
   const [xKey, setXKey] = useState("");
   const [yKeys, setYKeys] = useState([]);
+  const [chartKeys, setChartKeys] = useState([]); // New state for chart keys
   const [parameters, setParameters] = useState({});
   const [events, setEvents] = useState([]);
   const [operatorID, setOperatorID] = useState(0);
+  const [scriptParameters, setScriptParameters] = useState({});
 
   const logEvent = useCallback((eventName) => {
     setEvents((previousEvents) => [eventName, ...previousEvents]);
@@ -181,9 +183,10 @@ const ReportListx = ({ companyCode, administrator }) => {
   }, []);
 
   const ClearScriptResults = () => {
-    setScriptResults("");
+    setScriptResults([]);
     setXKey("");
     setYKeys([]);
+    setChartKeys([]);
   };
 
   const [operatorInfo, setOperatorInfo] = useState(null);
@@ -288,8 +291,6 @@ const ReportListx = ({ companyCode, administrator }) => {
     }
   };
 
-  const [scriptParameters, setScriptParameters] = useState({});
-
   const executeScript = async (params = {}) => {
     const { row = currentRow, db = selectedDb, refresh = true } = params;
     if (row !== null) {
@@ -302,17 +303,40 @@ const ReportListx = ({ companyCode, administrator }) => {
         );
         const result = await ExecuteScript(updatedScript, db);
         setScriptResults(result);
-        setXKey(Object.keys(result[0] || [])[0]);
-        setYKeys([Object.keys(result[0] || [])[1]]);
+
+        // Set default keys for chart
+        if (result.length > 0) {
+          const keys = Object.keys(result[0]);
+          setChartKeys(keys); // Set keys for use in SelectBox and TagBox
+          if (keys.length > 0) {
+            setXKey(keys[0]); // Set first key as x-axis key
+          }
+          if (keys.length > 1) {
+            setYKeys([keys[1]]); // Set second key as y-axis key
+          } else {
+            setYKeys([]); // If there is only one key, y-axis keys should be empty
+          }
+        } else {
+          setXKey("");
+          setYKeys([]);
+          setChartKeys([]);
+        }
       } catch (error) {
         console.error("Error executing the script", error);
         setScriptResults([]);
+        setXKey("");
+        setYKeys([]);
+        setChartKeys([]);
       }
     }
     if (refresh) {
       setRefreshKey((prevKey) => prevKey + 1);
     }
   };
+
+  useEffect(() => {
+    console.log("keys are xkey", xKey, "ykeys", yKeys, "chartKeys", chartKeys);
+  }, [xKey, yKeys, chartKeys]);
 
   const injectParameters = async (script, parameters, row) => {
     try {
@@ -387,20 +411,24 @@ const ReportListx = ({ companyCode, administrator }) => {
     }
   };
 
-  const dbItems = [
-    { value: "db1", description: "CER Reporting" },
-    { value: "db2", description: "Steel Live" },
-    { value: "db3", description: "KineticPilot1" },
-  ];
+  // const dbItems = [
+  //   { value: "db1", description: "CER Reporting" },
+  //   { value: "db2", description: "Steel Live" },
+  //   { value: "db3", description: "KineticPilot1" },
+  // ];
 
   const toggleChart = () => {
-    const items = Object.keys(scriptResults[0] || {}).map((key) => ({
-      value: key,
-      label: key,
-    }));
-    console.log("items in chart header", items);
-
-    setShowChart(!showChart);
+    if (scriptResults.length > 0) {
+      const keys = Object.keys(scriptResults[0]);
+      setChartKeys(keys); // Create an array of keys from scriptResults
+      if (!xKey && keys.length > 0) {
+        setXKey(keys[0]);
+      }
+      if (yKeys.length === 0 && keys.length > 1) {
+        setYKeys([keys[1]]);
+      }
+    }
+    setShowChart((prevShowChart) => !prevShowChart);
   };
 
   const setCompanyCode = (e) => {
@@ -408,10 +436,13 @@ const ReportListx = ({ companyCode, administrator }) => {
     setRefreshKey((prevKey) => prevKey + 1);
   };
 
+  // Color array for different bars
+  const colors = ["#8884d8", "#82ca9d", "#ffc658", "#d0ed57", "#a4de6c"];
+
   return (
     <FormProvider {...methods}>
       <div className="content-block dx-card responsive-paddings">
-        {scriptResults === "" && (
+        {scriptResults.length === 0 && (
           <>
             <div className="form-row">
               <p>Company</p>
@@ -461,12 +492,12 @@ const ReportListx = ({ companyCode, administrator }) => {
                   <Form colCount={4}>
                     <Item dataField="GROUPCODE" />
                     <Item dataField="DESCRIPTION" width={400} />
-                    <Item
+                    {/* <Item
                       dataField="STEEL"
                       visible={true}
                       dataType={"boolean"}
-                    />
-                    <Item></Item>
+                    /> */}
+                    <EmptyItem colSpan={2} />
                     <Item colSpan={4}>
                       <DataGrid
                         dataSource={subTableData}
@@ -556,7 +587,7 @@ const ReportListx = ({ companyCode, administrator }) => {
           </>
         )}
 
-        {scriptResults && (
+        {scriptResults.length > 0 && (
           <div>
             <div className="button-container">
               <Button
@@ -609,22 +640,14 @@ const ReportListx = ({ companyCode, administrator }) => {
             {showChart && (
               <div className="chart-container">
                 <SelectBox
-                  items={Object.keys(scriptResults[0] || {}).map((key) => ({
-                    value: key,
-                    label: key,
-                  }))}
+                  items={chartKeys}
                   value={xKey}
                   onValueChanged={(e) => setXKey(e.value)}
-                  //placeholder="Select X Axis Key"
                 />
                 <TagBox
-                  items={Object.keys(scriptResults[0] || {}).map((key) => ({
-                    value: key,
-                    label: key,
-                  }))}
+                  items={chartKeys}
                   value={yKeys}
                   onValueChanged={(e) => setYKeys(e.value)}
-                  placeholder="Select Y Axis Keys"
                   showSelectionControls={true}
                   applyValueMode="useButtons"
                   multiline={false}
@@ -637,8 +660,12 @@ const ReportListx = ({ companyCode, administrator }) => {
                     <Tooltip />
                     <Legend />
                     {Array.isArray(yKeys) &&
-                      yKeys.map((key) => (
-                        <Bar key={key} dataKey={key} fill="#8884d8" />
+                      yKeys.map((key, index) => (
+                        <Bar
+                          key={key}
+                          dataKey={key}
+                          fill={colors[index % colors.length]}
+                        />
                       ))}
                   </BarChart>
                 </ResponsiveContainer>
