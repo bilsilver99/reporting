@@ -28,6 +28,7 @@ import {
   ReturnParams,
   CompanyStore,
   updatethisline,
+  ReturnOperatorGroupList,
 } from "./reportListData";
 import { Popup, SelectBox, TagBox } from "devextreme-react";
 import DataSource from "devextreme/data/data_source";
@@ -79,7 +80,7 @@ const fetchDropdownData = async (selectedCompanyCode, tableName, fieldName) => {
     });
 };
 
-const CellTemplate = ({ value, data, selectedCompanyCode }) => {
+const CellTemplate = ({ value, data, selectedCompanyCode, fileString }) => {
   const { setValue } = useFormContext();
   const [dropdownData, setDropdownData] = useState([]);
   const [selectedValue, setSelectedValue] = useState(value);
@@ -94,7 +95,8 @@ const CellTemplate = ({ value, data, selectedCompanyCode }) => {
           const fetchedData = await fetchDropdownData(
             selectedCompanyCode,
             tableName,
-            fieldName
+            fieldName,
+            fileString
           );
           setDropdownData(fetchedData);
         } catch (error) {
@@ -161,6 +163,8 @@ const ReportListx = ({ companyCode, administrator }) => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [companyCodes, setCompanyCodes] = useState([]);
   const [reportGroups, setReportGroups] = useState([]);
+  const [reportGroupCodes, setReportGroupCodes] = useState([]);
+  const [selectedReportGroup, setSelectedReportGroup] = useState("");
   const [scriptResults, setScriptResults] = useState([]);
   const [selectedDb, setSelectedDb] = useState("");
   const [selectedCompanyCode, setSelectedCompanyCode] = useState("");
@@ -229,6 +233,19 @@ const ReportListx = ({ companyCode, administrator }) => {
     }
   }, []);
 
+  const fetchOperatorGroups = useCallback(async (operatorID) => {
+    try {
+      const data = await ReturnOperatorGroupList(operatorID);
+      if (data && Array.isArray(data)) {
+        setReportGroupCodes(data);
+      } else {
+        setReportGroupCodes([]);
+      }
+    } catch (error) {
+      setReportGroupCodes([]);
+    }
+  }, []);
+
   useEffect(() => {
     fetchOperatorInfo();
   }, [fetchOperatorInfo]);
@@ -237,6 +254,7 @@ const ReportListx = ({ companyCode, administrator }) => {
     if (operatorID) {
       fetchReportGroups(operatorID);
       fetchCompanyCodes(operatorID);
+      fetchOperatorGroups(operatorID);
     }
   }, [operatorID, fetchReportGroups, fetchCompanyCodes]);
 
@@ -245,12 +263,13 @@ const ReportListx = ({ companyCode, administrator }) => {
       const store = ReportListStore(
         companyCode,
         administrator,
-        operatorInfo.OperatorID
+        operatorInfo.OperatorID,
+        selectedReportGroup
       );
       const dataSource = new DataSource(store);
       setDataSource(dataSource);
     }
-  }, [companyCode, administrator, operatorInfo]);
+  }, [companyCode, administrator, operatorInfo, selectedReportGroup]);
 
   const handleEditingStart = (e) => {
     setCurrentRow(e.data.UNIQUEID);
@@ -431,8 +450,13 @@ const ReportListx = ({ companyCode, administrator }) => {
     setShowChart((prevShowChart) => !prevShowChart);
   };
 
-  const setCompanyCode = (e) => {
-    setSelectedCompanyCode(e.value);
+  const setCompanyCode = (value) => {
+    setSelectedCompanyCode(value);
+    setRefreshKey((prevKey) => prevKey + 1);
+  };
+
+  const setReportGroup = (value) => {
+    setSelectedReportGroup(value);
     setRefreshKey((prevKey) => prevKey + 1);
   };
 
@@ -445,17 +469,30 @@ const ReportListx = ({ companyCode, administrator }) => {
         {scriptResults.length === 0 && (
           <>
             <div className="form-row">
-              <p>Company</p>
-              <SelectBox
-                items={companyCodes}
-                value={selectedCompanyCode}
-                onValueChanged={setCompanyCode}
-                displayExpr="COMNAME"
-                valueExpr="COMNUMBER"
-                className="select-box"
-              />
+              <div className="form-group">
+                <p>Company</p>
+                <SelectBox
+                  items={companyCodes}
+                  value={selectedCompanyCode}
+                  onValueChanged={(e) => setCompanyCode(e.value)}
+                  displayExpr="COMNAME"
+                  valueExpr="COMNUMBER"
+                  className="select-box"
+                />
+              </div>
+              <div className="form-group">
+                <p>Report Group</p>
+                <SelectBox
+                  items={reportGroupCodes}
+                  value={selectedReportGroup}
+                  onValueChanged={(e) => setReportGroup(e.value)}
+                  displayExpr="DESCRIPTION"
+                  valueExpr="GROUPID"
+                  className="select-box"
+                />
+              </div>
             </div>
-            {selectedCompanyCode && (
+            {selectedCompanyCode && selectedReportGroup && (
               <DataGrid
                 dataSource={dataSource}
                 keyExpr={"UNIQUEID"}
@@ -545,6 +582,7 @@ const ReportListx = ({ companyCode, administrator }) => {
                                 value={cellProps.value}
                                 data={cellProps.data}
                                 selectedCompanyCode={selectedCompanyCode}
+                                filestring={cellProps.data.FILESTRING}
                               />
                             ) : null;
                           }}
@@ -571,6 +609,7 @@ const ReportListx = ({ companyCode, administrator }) => {
                   dataField="GROUPCODE"
                   caption="Group Code"
                   allowEditing={false}
+                  visible={false}
                 ></Column>
                 <Column
                   dataField="DESCRIPTION"

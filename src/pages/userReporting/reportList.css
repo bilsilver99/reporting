@@ -29,3 +29,12 @@
   padding: 10px; /* Adjust padding for internal spacing */
   box-sizing: border-box; /* Ensure padding is included in the total width/height */
 }
+
+.form-row {
+  display: flex;
+  align-items: center;
+}
+
+.form-group {
+  margin-right: 20px;
+}

@@ -8,7 +8,12 @@ function isNotEmpty(value) {
   return value !== undefined && value !== null && value !== "";
 }
 
-export const ReportListStore = (myClient, administrator, OperatorID) =>
+export const ReportListStore = (
+  myClient,
+  administrator,
+  OperatorID,
+  reportgroupID
+) =>
   new CustomStore({
     key: "UNIQUEID",
     load: (loadOptions) => {
@@ -41,6 +46,7 @@ export const ReportListStore = (myClient, administrator, OperatorID) =>
           sentadmin: administrator,
           Parameters: params,
           OperatorID: OperatorID,
+          reportgroupID: reportgroupID,
         }),
       };
       const url = `${process.env.REACT_APP_BASE_URL}/ReturnScriptList`;
@@ -567,6 +573,33 @@ export const updatethisline = async (uniqueid, newvalue) => {
     })
     .then((json) => {
       // console.log("drop down", json);
+      return json.user_response.bankq;
+    });
+};
+
+export const ReturnOperatorGroupList = async (operatorID) => {
+  //var myClient = 1;
+  var requestoptions = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json;",
+    },
+    body: JSON.stringify({
+      OperatorID: operatorID,
+    }),
+  };
+  console.log("operatorid ", operatorID);
+  const url = `${process.env.REACT_APP_BASE_URL}/ReturnOperatorGroupList`;
+  return fetch(url, requestoptions)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((json) => {
+      console.log("drop down", json);
       return json.user_response.bankq;
     });
 };

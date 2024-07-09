@@ -118,7 +118,7 @@ const ReportRolesx = ({ companyCode }) => {
           allowDeleting={true}
         >
           <Popup
-            title="Operator Info"
+            title="Report Roles"
             showTitle={true}
             width={"40%"}
             height={600}
