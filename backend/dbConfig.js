@@ -3,7 +3,7 @@ module.exports = {
   db1Config: {
     user: "steel2",
     password: "steel2",
-    server: "WORKDESKTOP\\SQLEXPRESS",
+    server: "Bill-Desktop",
     database: "CEReporting",
     options: {
       encrypt: false, // Adjust as needed
@@ -13,8 +13,8 @@ module.exports = {
   db2Config: {
     user: "steel2",
     password: "steel2",
-    server: "WORKDESKTOP\\SQLEXPRESS",
-    database: "Steel057",
+    server: "Bill-Desktop",
+    database: "Steel056",
     options: {
       encrypt: false, // Adjust as needed
       enableArithAbort: true,
@@ -23,7 +23,7 @@ module.exports = {
   db3Config: {
     user: "steel2",
     password: "steel2",
-    server: "WORKDESKTOP\\SQLEXPRESS",
+    server: "Bill-Desktop",
     database: "KineticPilot1",
     options: {
       encrypt: false, // Adjust as needed
