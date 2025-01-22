@@ -29,7 +29,7 @@ export async function signIn(email, password) {
   } catch {
     return {
       isOk: false,
-      message: "Authentication failed",
+      message: "Authentication  -- failed",
     };
   }
 }

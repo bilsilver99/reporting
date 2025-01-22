@@ -4,7 +4,7 @@ module.exports = {
     user: "steel2",
     password: "steel2",
     server: "Bill-Desktop",
-    database: "CEReporting",
+    database: "Reporting",
     options: {
       encrypt: false, // Adjust as needed
       enableArithAbort: true,
